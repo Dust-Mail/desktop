@@ -1,0 +1,85 @@
+{
+	"$schema": "../node_modules/@tauri-apps/cli/schema.json",
+	"build": {
+		"beforeBuildCommand": "cd ../../ && turbo run build --filter @dust-mail/web",
+		"beforeDevCommand": "pnpm dev",
+		"devPath": "http://localhost:5173/",
+		"distDir": "../dist",
+		"withGlobalTauri": true
+	},
+	"package": {
+		"productName": "Dust-Mail",
+		"version": "../package.json"
+	},
+	"tauri": {
+		"pattern": {
+			"use": "isolation",
+			"options": {
+				"dir": "isolation-dist"
+			}
+		},
+		"allowlist": {
+			"all": false,
+			"window": {
+				"close": true,
+				"create": true
+			},
+			"shell": {
+				"open": true
+			}
+		},
+		"systemTray": {
+			"iconPath": "icons/icon.png",
+			"iconAsTemplate": true
+		},
+		"bundle": {
+			"active": true,
+			"category": "Productivity",
+			"copyright": "Guus van Meerveld",
+			"deb": {
+				"depends": []
+			},
+			"externalBin": [],
+			"icon": [
+				"icons/32x32.png",
+				"icons/128x128.png",
+				"icons/128x128@2x.png",
+				"icons/icon.icns",
+				"icons/icon.ico"
+			],
+			"identifier": "dust.guusvanmeerveld.dev",
+			"longDescription": "An opensource mail client supporting multiple platforms.",
+			"macOS": {
+				"entitlements": null,
+				"exceptionDomain": "",
+				"frameworks": [],
+				"providerShortName": null,
+				"signingIdentity": null
+			},
+			"resources": [],
+			"shortDescription": "A simple and fast mail client",
+			"targets": "all",
+			"windows": {
+				"certificateThumbprint": null,
+				"digestAlgorithm": "sha256",
+				"timestampUrl": ""
+			}
+		},
+		"security": {},
+		"updater": {
+			"active": false,
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEM3OTY1OTUxNjk3ODMxRApSV1FkZzVjV2xXVjVETmsyblI4b1p0eDVrRHRPUlkvb3d1VjZKMnFYME1nUXdyNVpiNlNwR09KVQo="
+		},
+		"windows": [
+			{
+				"maximized": true,
+				"minHeight": 300,
+				"minWidth": 300,
+				"focus": false,
+				"resizable": true,
+				"label": "main",
+				"title": "Dust-Mail"
+			}
+		]
+	}
+}
