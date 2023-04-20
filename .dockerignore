@@ -1,0 +1,11 @@
+**
+
+!/src
+!/public
+!/package.json
+!/tsconfig.json
+!/tsconfig.node.json
+!/pnpm-lock.yaml
+!/vite.config.ts
+!/index.html
+!/.env
