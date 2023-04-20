@@ -1,6 +1,6 @@
 import findBoxInPrimaryBoxesList from "./findBoxInPrimaryBoxesList";
 
-import { MailBoxList, MailBox } from "@dust-mail/structures";
+import { MailBoxList, MailBox } from "@src/models";
 
 const findBox = (idToFind: string, boxes: MailBoxList): MailBox | undefined => {
 	if (boxes.length < 1) return undefined;

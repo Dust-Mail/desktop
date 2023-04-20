@@ -5,7 +5,7 @@ import { repository } from "../../../package.json";
 import { FC, useCallback, useEffect } from "react";
 import { useState } from "react";
 
-import { AppError, ApiSettings } from "@dust-mail/structures";
+import { AppError, ApiSettings } from "@src/models";
 
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";

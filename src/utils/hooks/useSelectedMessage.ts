@@ -6,7 +6,7 @@ import useUser from "./useUser";
 import { useEffect, useMemo } from "react";
 import { useQuery } from "react-query";
 
-import { AppError, Message } from "@dust-mail/structures";
+import { AppError, Message } from "@src/models";
 
 import useSelectedBox from "@utils/hooks/useSelectedBox";
 import useStore from "@utils/hooks/useStore";

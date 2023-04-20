@@ -1,4 +1,4 @@
-import { MailBox as ServerMailBox } from "@dust-mail/structures";
+import { MailBox as ServerMailBox } from "@src/models";
 
 type MailBox = ServerMailBox & { icon?: JSX.Element };
 

@@ -1,6 +1,6 @@
 import parseZodOutput from "./parseZodOutput";
 
-import { AppError, AppErrorModel } from "@dust-mail/structures";
+import { AppError, AppErrorModel } from "@src/models";
 
 import { ErrorResult } from "@interfaces/result";
 

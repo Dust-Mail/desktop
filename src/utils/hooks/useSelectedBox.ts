@@ -4,7 +4,7 @@ import useSelectedStore from "./useSelected";
 import { useMemo } from "react";
 import { useQuery } from "react-query";
 
-import { AppError, MailBox } from "@dust-mail/structures";
+import { AppError, MailBox } from "@src/models";
 
 import Box from "@interfaces/box";
 

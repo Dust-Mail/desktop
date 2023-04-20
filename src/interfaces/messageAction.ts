@@ -1,4 +1,4 @@
-import { Message } from "@dust-mail/structures";
+import { Message } from "@src/models";
 
 export default interface MessageAction {
 	name: string;

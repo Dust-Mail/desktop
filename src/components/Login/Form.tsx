@@ -18,7 +18,7 @@ import {
 	ConnectionSecurity,
 	IncomingMailServerType,
 	OutgoingMailServerType
-} from "@dust-mail/structures";
+} from "@src/models";
 
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";

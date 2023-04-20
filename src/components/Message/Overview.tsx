@@ -2,7 +2,7 @@ import useLocalStorageState from "use-local-storage-state";
 
 import { useEffect, useRef, useState, memo, FC, MouseEvent } from "react";
 
-import { Address } from "@dust-mail/structures";
+import { Address } from "@src/models";
 
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";

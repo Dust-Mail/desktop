@@ -4,7 +4,7 @@ import useUser from "./useUser";
 import { useCallback } from "react";
 import { useQuery } from "react-query";
 
-import { MailBox, MailBoxList, AppError } from "@dust-mail/structures";
+import { MailBox, MailBoxList, AppError } from "@src/models";
 
 import findBoxFromBoxes from "@utils/findBox";
 import { createResultFromUnknown, errorToString } from "@utils/parseError";

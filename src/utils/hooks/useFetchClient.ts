@@ -1,7 +1,7 @@
 import useSettings from "./useSettings";
 import useUser from "./useUser";
 
-import { ApiResponseModel } from "@dust-mail/structures";
+import { ApiResponseModel } from "@src/models";
 
 import { Result } from "@interfaces/result";
 

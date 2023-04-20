@@ -1,6 +1,6 @@
 import { FC, memo, MouseEvent, useMemo, useState } from "react";
 
-import { Preview } from "@dust-mail/structures";
+import { Preview } from "@src/models";
 
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";

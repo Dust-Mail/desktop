@@ -3,7 +3,7 @@ import { z } from "zod";
 import { version } from "../../../package.json";
 import useFetchClient from "./useFetchClient";
 
-import { ApiSettingsModel } from "@dust-mail/structures";
+import { ApiSettingsModel } from "@src/models";
 
 import ApiClient from "@interfaces/api";
 

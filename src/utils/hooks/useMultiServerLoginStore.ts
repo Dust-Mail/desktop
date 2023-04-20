@@ -11,7 +11,7 @@ import {
 	MailServerType,
 	ConnectionSecurity,
 	LoginOptions
-} from "@dust-mail/structures";
+} from "@src/models";
 
 export type MultiServerLoginOptions = {
 	password: string;

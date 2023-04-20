@@ -12,7 +12,7 @@ import {
 	MessageModel,
 	PreviewModel,
 	VersionModel
-} from "@dust-mail/structures";
+} from "@src/models";
 
 import { messageCountForPage } from "@src/constants";
 

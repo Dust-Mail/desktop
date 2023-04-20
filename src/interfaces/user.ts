@@ -1,4 +1,4 @@
-import { ServerType } from "@dust-mail/structures";
+import { ServerType } from "@src/models";
 
 export default interface User {
 	id: string;

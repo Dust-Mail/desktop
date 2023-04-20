@@ -3,7 +3,7 @@ import z from "zod";
 import useFetchClient from "./useFetchClient";
 import useSettings from "./useSettings";
 
-import { OAuthState } from "@dust-mail/structures";
+import { OAuthState } from "@src/models";
 
 import OAuth2Client from "@interfaces/oauth2";
 import { Result } from "@interfaces/result";

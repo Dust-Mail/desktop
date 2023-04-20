@@ -1,4 +1,4 @@
-import { AppError } from "@dust-mail/structures";
+import { AppError } from "@src/models";
 
 export interface ErrorResult {
 	ok: false;

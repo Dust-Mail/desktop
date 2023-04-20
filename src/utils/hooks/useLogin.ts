@@ -8,7 +8,7 @@ import {
 	LoginOptions,
 	ServerType,
 	Version
-} from "@dust-mail/structures";
+} from "@src/models";
 
 import { Result } from "@interfaces/result";
 

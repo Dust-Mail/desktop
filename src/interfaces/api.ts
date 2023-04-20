@@ -1,6 +1,6 @@
 import { Result } from "./result";
 
-import { ApiSettings } from "@dust-mail/structures";
+import { ApiSettings } from "@src/models";
 
 export default interface ApiClient {
 	getChangelog: () => Promise<Result<string>>;

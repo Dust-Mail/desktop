@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useInfiniteQuery } from "react-query";
 
-import { Preview, AppError } from "@dust-mail/structures";
+import { Preview, AppError } from "@src/models";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
