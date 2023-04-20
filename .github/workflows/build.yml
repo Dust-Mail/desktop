@@ -1,5 +1,8 @@
 name: Build application
 
+permissions:
+  packages: write
+
 on:
   push:
     paths:
