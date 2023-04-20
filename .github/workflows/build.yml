@@ -1,0 +1,63 @@
+name: Build application
+
+on:
+  push:
+    paths:
+      - src
+      - public
+      - src-tauri
+      - Dockerfile
+      - .dockerignore
+      - tsconfig.json
+      - tsconfig.node.json
+      - package.json
+      - pnpm-lock.yaml
+      - vite.config.ts
+      - .env
+      - .github/workflows/build.yml
+  pull_request:
+    
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download code
+        uses: actions/checkout@v2
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.9.1
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts -r
+      
+      - name: Build web app
+        run: pnpm run build
+
+      - uses: actions/upload-artifact@v3
+        name: Upload result
+        with:
+          name: dust-mail-web
+          path: dist
