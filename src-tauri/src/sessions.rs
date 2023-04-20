@@ -3,7 +3,7 @@ use serde_json::from_str;
 
 use std::sync::Arc;
 
-use sdk::session::{MailSessions, ThreadSafeIncomingSession};
+use dust_mail::session::{MailSessions, ThreadSafeIncomingSession};
 
 use crate::{keyring, types::Result};
 
@@ -50,7 +50,7 @@ impl Sessions {
 
                 let credentials = from_str(&credentials_json)?;
 
-                let mail_sessions = sdk::session::create_sessions(&credentials).await?;
+                let mail_sessions = dust_mail::session::create_sessions(&credentials).await?;
 
                 self.insert_session(identifier.clone(), mail_sessions)?;
 

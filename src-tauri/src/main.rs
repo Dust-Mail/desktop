@@ -13,6 +13,7 @@ mod menu;
 mod parse;
 mod tray;
 mod types;
+mod utils;
 
 use sessions::Sessions;
 use tauri::{Manager, SystemTrayEvent};

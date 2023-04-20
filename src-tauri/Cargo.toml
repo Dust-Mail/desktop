@@ -1,5 +1,5 @@
 [package]
-name = "dust-mail-client"
+name = "dust-mail-desktop"
 version = "0.1.4"
 description = "A simple material mail client"
 authors = ["Guus van Meerveld"]
@@ -17,7 +17,7 @@ tauri-build = { version = "1.2", features = ["isolation"] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = ["devtools", "isolation", "shell-open", "system-tray", "window-close", "window-create"] }
-sdk = { path = "../../../packages/sdk", version = "0.1" }
+dust-mail = { git = "https://github.com/Dust-Mail/core", version = "0.1" }
 open = "3.0"
 base64 = "0.21"
 directories = "4.0"

@@ -1,4 +1,4 @@
-use sdk::{
+use dust_mail::{
     detect::{self, Config},
     session::FullLoginOptions,
     types::{MailBox, Message, Preview},
@@ -19,7 +19,7 @@ pub async fn login(
     session_handler: State<'_, Sessions>,
 ) -> Result<String> {
     // Connect and login to the mail servers using the user provided credentials.
-    let mail_sessions = sdk::session::create_sessions(&credentials).await?;
+    let mail_sessions = dust_mail::session::create_sessions(&credentials).await?;
 
     let mut identifier = Identifier::from(&credentials);
 

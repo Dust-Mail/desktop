@@ -7,11 +7,13 @@ use std::{
 
 // pub use credentials::Credentials;
 
+use dust_mail::types::Error as SdkError;
 use keyring::Error as KeyringError;
-use sdk::types::Error as SdkError;
 use serde_json::Error as JsonError;
 
 use serde::{ser::SerializeStruct, Serialize};
+
+use crate::debug;
 
 #[derive(Debug)]
 pub struct Error {
@@ -67,6 +69,7 @@ impl Serialize for Error {
     where
         S: serde::Serializer,
     {
+        debug!("{:?}, error has source: {}", self, self.source().is_some());
         let source = self.source().unwrap_or(&self);
         let mut state = serializer.serialize_struct("Error", 2)?;
 
@@ -79,10 +82,10 @@ impl Serialize for Error {
 impl StdError for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self.kind() {
-            ErrorKind::Io(e) => e.source(),
-            ErrorKind::Json(e) => e.source(),
-            ErrorKind::Keyring(e) => e.source(),
-            ErrorKind::Mail(e) => e.source(),
+            ErrorKind::Io(e) => Some(e),
+            ErrorKind::Json(e) => Some(e),
+            ErrorKind::Keyring(e) => Some(e),
+            ErrorKind::Mail(e) => Some(e),
             _ => None,
         }
     }

@@ -1,4 +1,4 @@
-use sdk::session::{FullLoginOptions, LoginType};
+use dust_mail::session::{FullLoginOptions, LoginType};
 
 use crate::{hash::sha256_hex, types::Result};
 
