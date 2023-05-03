@@ -1,4 +1,6 @@
-use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
+use tauri::{api::shell::open, CustomMenuItem, Manager, Menu, MenuItem, Submenu, WindowMenuEvent};
+
+use crate::{constants::APPLICATION_NAME, info::Info};
 
 pub fn create_menu() -> Menu {
     // Help menu
@@ -21,5 +23,43 @@ pub fn create_menu() -> Menu {
             .add_item(about),
     );
 
-    Menu::os_default("Dust-Mail").add_submenu(help_submenu)
+    Menu::os_default(APPLICATION_NAME).add_submenu(help_submenu)
+}
+
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+    message: String,
+}
+
+pub fn menu_event_listener(event: WindowMenuEvent) {
+    let shell_scope = event.window().app_handle().shell_scope();
+
+    let info = Info::default();
+
+    match event.menu_item_id() {
+        "repository" => {
+            open(&shell_scope, info.repo_url(), None).unwrap();
+        }
+        "donate" => {
+            open(&shell_scope, info.donate_url(), None).unwrap();
+        }
+        "report_issue" => {
+            open(&shell_scope, info.issue_url(), None).unwrap();
+        }
+        "license" => {
+            open(&shell_scope, info.license_url(), None).unwrap();
+        }
+        "about" => {
+            event
+                .window()
+                .emit(
+                    "show_about",
+                    Payload {
+                        message: "Show about".into(),
+                    },
+                )
+                .unwrap();
+        }
+        _ => {}
+    };
 }

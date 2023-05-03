@@ -5,8 +5,6 @@ use std::{
     result,
 };
 
-// pub use credentials::Credentials;
-
 use dust_mail::types::Error as SdkError;
 use keyring::Error as KeyringError;
 use serde_json::Error as JsonError;

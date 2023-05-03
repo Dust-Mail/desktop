@@ -34,13 +34,15 @@ impl Sessions {
         &self,
         identifier: S,
     ) -> Result<ThreadSafeIncomingSession> {
-        let mail_sessions = self.get_session(identifier.as_ref()).await?;
+        let identifier = identifier.as_ref();
+
+        let mail_sessions = self.get_session(identifier).await?;
 
         Ok(mail_sessions.incoming().clone())
     }
 
     pub async fn get_session<S: Into<String>>(&self, identifier: S) -> Result<Arc<MailSessions>> {
-        let identifier = identifier.into();
+        let identifier: String = identifier.into();
 
         match self.sessions_map.get(&identifier) {
             Some(sessions) => Ok(sessions.clone()),

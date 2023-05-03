@@ -998,7 +998,6 @@ dependencies = [
  "dust-mail",
  "futures",
  "keyring",
- "open",
  "ring",
  "serde",
  "serde_json",

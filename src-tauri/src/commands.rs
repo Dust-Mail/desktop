@@ -15,19 +15,19 @@ pub async fn detect_config(email_address: String) -> Result<Config> {
 
 #[tauri::command(async)]
 pub async fn login(
-    credentials: FullLoginOptions,
+    login_configuration: FullLoginOptions,
     session_handler: State<'_, Sessions>,
 ) -> Result<String> {
     // Connect and login to the mail servers using the user provided credentials.
-    let mail_sessions = dust_mail::session::create_sessions(&credentials).await?;
+    let mail_sessions = dust_mail::session::create_sessions(&login_configuration).await?;
 
-    let mut identifier = Identifier::from(&credentials);
+    let mut identifier = Identifier::from(&login_configuration);
 
     identifier.hash()?;
 
     let identifier: String = identifier.into();
 
-    let credentials_json = to_json(&credentials)?;
+    let credentials_json = to_json(&login_configuration)?;
 
     keyring::set(&identifier, credentials_json)?;
 

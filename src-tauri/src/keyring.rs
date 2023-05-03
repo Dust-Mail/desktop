@@ -1,8 +1,6 @@
-use crate::types::Result;
+use crate::{constants::APPLICATION_NAME, types::Result};
 
 use keyring::Entry;
-
-const APPLICATION_NAME: &str = "Dust-Mail";
 
 fn build_entry_from_identifier<T: AsRef<str>>(identifier: T) -> Result<Entry> {
     let username = whoami::username();
