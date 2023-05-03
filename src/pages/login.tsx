@@ -20,7 +20,7 @@ import useUser from "@utils/hooks/useUser";
 
 import DarkModeSwitch from "@components/DarkModeSwitch";
 import Layout from "@components/Layout";
-import LoginForm from "@components/Login/Form";
+import DetectConfigurtionForm from "@components/Login/Detect";
 import LoginSettingsMenu from "@components/Login/Settings";
 
 const Login: FC = () => {
@@ -70,7 +70,7 @@ const Login: FC = () => {
 						m: "auto"
 					}}
 				>
-					<LoginForm>
+					<DetectConfigurtionForm>
 						<img
 							style={{ width: theme.spacing(15), margin: "auto" }}
 							src="/android-chrome-512x512.png"
@@ -81,7 +81,7 @@ const Login: FC = () => {
 							{import.meta.env.VITE_APP_NAME}
 						</Typography>
 						<Typography variant="h5">{description}</Typography>
-					</LoginForm>
+					</DetectConfigurtionForm>
 				</Box>
 				<Box
 					sx={{

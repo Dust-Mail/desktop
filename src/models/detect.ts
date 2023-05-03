@@ -4,8 +4,8 @@ import {
 	ConnectionSecurityModel,
 	IncomingMailServerTypeModel,
 	OutgoingMailServerTypeModel,
-	IncomingServerTypeString,
-	OutgoingServerTypeString
+	incomingServerTypeString,
+	outgoingServerTypeString
 } from "./login";
 
 export const AuthTypeModel = z.enum([
@@ -38,8 +38,8 @@ export type OutgoingServerConfig = z.infer<typeof OutgoingServerConfigModel>;
 export const ConfigTypeModel = z.record(
 	z.literal("multiServer"),
 	z.object({
-		[IncomingServerTypeString]: IncomingServerConfigModel.array(),
-		[OutgoingServerTypeString]: OutgoingServerConfigModel.array()
+		[incomingServerTypeString]: IncomingServerConfigModel.array(),
+		[outgoingServerTypeString]: OutgoingServerConfigModel.array()
 	})
 );
 export type ConfigType = z.infer<typeof ConfigTypeModel>;

@@ -1,9 +1,10 @@
 import z from "zod";
 
 import useFetchClient from "./useFetchClient";
+import useIsDesktop from "./useIsDesktop";
 import useSettings from "./useSettings";
 
-import { OAuthState } from "@src/models";
+import { OAuthSessionModel, OAuthState } from "@src/models";
 
 import OAuth2Client from "@interfaces/oauth2";
 import { Result } from "@interfaces/result";
@@ -48,15 +49,30 @@ const findProviderToken = (
 	return null;
 };
 
+const waitForWindowClose = async (popup: Window): Promise<void> => {
+	return await new Promise((resolve) => {
+		let id = 0;
+
+		id = setInterval(() => {
+			if (popup.closed) {
+				clearInterval(id);
+				resolve();
+			}
+		}, 250);
+	});
+};
+
 const useOAuth2Client = (): OAuth2Client => {
-	const isTauri: boolean = "__TAURI__" in window;
+	const isDesktop = useIsDesktop();
 
 	const getPublicTokens = useGetPublicOAuthTokens();
+
+	const fetch = useFetchClient();
 
 	const [settings] = useSettings();
 
 	return {
-		async getGrant(providerName, authUrl, tokenUrl, scopes) {
+		async getAccessToken(providerName, authUrl, tokenUrl, scopes) {
 			const authUrlResult = z.string().url().safeParse(authUrl);
 
 			const authUrlOutput = parseZodOutput(authUrlResult);
@@ -93,7 +109,7 @@ const useOAuth2Client = (): OAuth2Client => {
 			const providerToken = providerDetails[0];
 			const providerId = providerDetails[1];
 
-			if (!isTauri) {
+			if (!isDesktop) {
 				if (typeof window !== "undefined" && "open" in window) {
 					const url = new URL(authUrlOutput.data);
 					const redirectUri = new URL(
@@ -103,7 +119,7 @@ const useOAuth2Client = (): OAuth2Client => {
 
 					const state: OAuthState = {
 						provider: providerId,
-						application: isTauri ? "desktop" : "web"
+						application: isDesktop ? "desktop" : "web"
 					};
 
 					// https://www.rfc-editor.org/rfc/rfc6749#section-1.1
@@ -114,7 +130,7 @@ const useOAuth2Client = (): OAuth2Client => {
 					url.searchParams.set("state", JSON.stringify(state));
 					url.searchParams.set("access_type", "offline");
 
-					const oauthLoginWindow = window.open(url, "_blank", "popup");
+					let oauthLoginWindow = window.open(url, "_blank", "popup");
 
 					if (oauthLoginWindow === null)
 						return createBaseError({
@@ -123,9 +139,9 @@ const useOAuth2Client = (): OAuth2Client => {
 								"Your browser environment does not support intercommunication between windows"
 						});
 
-					oauthLoginWindow.addEventListener("message", console.log);
+					await waitForWindowClose(oauthLoginWindow);
 
-					return { ok: true as const, data: "" };
+					oauthLoginWindow = null;
 				} else {
 					return createBaseError({
 						kind: "UnsupportedEnvironment",
@@ -133,9 +149,20 @@ const useOAuth2Client = (): OAuth2Client => {
 							"Your browser environment does not support opening a new window"
 					});
 				}
+			} else {
+				return NotImplemented("oauth-grant-tauri");
 			}
 
-			return NotImplemented("oauth-grant-tauri");
+			const userRequestResult = await fetch("/mail/oauth2/user", {
+				method: "GET",
+				useMailSessionToken: false
+			}).catch(createResultFromUnknown);
+
+			if (!userRequestResult.ok) return userRequestResult;
+
+			const userResult = OAuthSessionModel.safeParse(userRequestResult.data);
+
+			return parseZodOutput(userResult);
 		}
 	};
 };

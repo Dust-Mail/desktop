@@ -5,8 +5,6 @@ import { repository } from "../../../package.json";
 import { FC, useCallback, useEffect } from "react";
 import { useState } from "react";
 
-import { AppError, ApiSettings } from "@src/models";
-
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -26,6 +24,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import ErrorIcon from "@mui/icons-material/Error";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SettingsIcon from "@mui/icons-material/Settings";
+
+import { AppError, ApiSettings } from "@src/models";
 
 import { Result } from "@interfaces/result";
 
@@ -203,7 +203,7 @@ const LoginSettingsMenu: FC = () => {
 								fullWidth
 								variant="contained"
 							>
-								Save and exit
+								Login
 							</Button>
 
 							<Button

@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import useStore from "@utils/hooks/useStore";
 
 import Layout from "@components/Layout";
-import LoginForm from "@components/Login/Form";
+import DetectConfigurationForm from "@components/Login/Detect";
 
 const FetchBar: FC = () => {
 	const fetching = useStore((state) => state.fetching);
@@ -48,9 +48,11 @@ const AddAccount: FC = () => {
 					justifyContent: "center"
 				}}
 			>
-				<LoginForm trailing={<Button onClick={() => goBack()}>Go back</Button>}>
+				<DetectConfigurationForm
+					trailing={<Button onClick={() => goBack()}>Go back</Button>}
+				>
 					<Typography variant="h2">Add account</Typography>
-				</LoginForm>
+				</DetectConfigurationForm>
 			</Box>
 		</Layout>
 	);

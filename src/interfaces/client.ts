@@ -1,6 +1,6 @@
 import {
 	MailConfig,
-	Credentials,
+	LoginConfiguration,
 	MailBoxList,
 	MailBox,
 	Message,
@@ -15,7 +15,7 @@ import { Result } from "@interfaces/result";
 export default interface MailClient {
 	getVersion: () => Promise<Result<Version>>;
 	detectConfig: (emailAddress: string) => Promise<Result<MailConfig>>;
-	login: (options: Credentials) => Promise<Result<string>>;
+	login: (options: LoginConfiguration) => Promise<Result<string>>;
 	logout: () => Promise<Result<void>>;
 	get: (boxId?: string) => Promise<Result<MailBox>>;
 	list: () => Promise<Result<MailBoxList>>;

@@ -4,8 +4,8 @@ import useUser, { useCurrentUser, useModifyUser } from "./useUser";
 import { useNavigate } from "react-router-dom";
 
 import {
-	Credentials,
-	LoginOptions,
+	LoginConfiguration,
+	ServerLoginConfiguration,
 	ServerType,
 	Version
 } from "@src/models";
@@ -21,7 +21,9 @@ import {
 
 // TODO: Fix this mess of a file.
 
-const findUsernameInLoginOptions = (loginOptions: LoginOptions): string => {
+const findUsernameInLoginOptions = (
+	loginOptions: ServerLoginConfiguration
+): string => {
 	return (
 		loginOptions.loginType.oAuthBased?.username ??
 		loginOptions.loginType.passwordBased?.username ??
@@ -31,8 +33,8 @@ const findUsernameInLoginOptions = (loginOptions: LoginOptions): string => {
 };
 
 const createIdentifier = (
-	incomingConfig: LoginOptions,
-	outgoingConfig: LoginOptions
+	incomingConfig: ServerLoginConfiguration,
+	outgoingConfig: ServerLoginConfiguration
 ): string => {
 	const incomingUsername = findUsernameInLoginOptions(incomingConfig);
 	const outgoingUsername = findUsernameInLoginOptions(outgoingConfig);
@@ -45,7 +47,7 @@ const createIdentifier = (
 };
 
 export const useMailLogin = (): ((
-	config: Credentials
+	config: LoginConfiguration
 ) => Promise<Result<void>>) => {
 	const appVersion = useStore((state) => state.appVersion);
 	const setFetching = useStore((state) => state.setFetching);

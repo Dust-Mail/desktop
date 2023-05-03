@@ -4,8 +4,9 @@ import z from "zod";
 import useFetchClient from "./useFetchClient";
 import useUser from "./useUser";
 
+import { messageCountForPage } from "@src/constants";
 import {
-	CredentialsModel,
+	LoginConfigurationModel,
 	MailBoxListModel,
 	MailBoxModel,
 	MailConfigModel,
@@ -13,8 +14,6 @@ import {
 	PreviewModel,
 	VersionModel
 } from "@src/models";
-
-import { messageCountForPage } from "@src/constants";
 
 import MailClient from "@interfaces/client";
 
@@ -94,7 +93,9 @@ const useMailClient = (): MailClient => {
 				.catch(createResultFromUnknown);
 		},
 		async login(options) {
-			const optionsResult = parseZodOutput(CredentialsModel.safeParse(options));
+			const optionsResult = parseZodOutput(
+				LoginConfigurationModel.safeParse(options)
+			);
 
 			if (!optionsResult.ok) {
 				return optionsResult;

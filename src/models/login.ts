@@ -6,6 +6,10 @@ export type ConnectionSecurity = z.infer<typeof ConnectionSecurityModel>;
 
 export const incomingMailServerTypeList = ["Imap", "Pop", "Exchange"] as const;
 export const outgoingMailServerTypeList = ["Smtp"] as const;
+export const mailServerTypeList = [
+	...incomingMailServerTypeList,
+	...outgoingMailServerTypeList
+];
 
 export const IncomingMailServerTypeModel = z.enum(incomingMailServerTypeList);
 export type IncomingMailServerType = z.infer<
@@ -23,13 +27,17 @@ export const MailServerTypeModel = z.union([
 ]);
 export type MailServerType = z.infer<typeof MailServerTypeModel>;
 
-export const IncomingServerTypeString = "incoming" as const;
-export const OutgoingServerTypeString = "outgoing" as const;
+export const incomingServerTypeString = "incoming" as const;
+export const outgoingServerTypeString = "outgoing" as const;
+export const serverTypeList = [
+	incomingServerTypeString,
+	outgoingServerTypeString
+] as const;
 
-export const IncomingServerTypeModel = z.literal(IncomingServerTypeString);
+export const IncomingServerTypeModel = z.literal(incomingServerTypeString);
 export type IncomingServerType = z.infer<typeof IncomingServerTypeModel>;
 
-export const OutgoingServerTypeModel = z.literal(OutgoingServerTypeString);
+export const OutgoingServerTypeModel = z.literal(outgoingServerTypeString);
 export type OutgoingServerType = z.infer<typeof OutgoingServerTypeModel>;
 
 export const ServerTypeModel = z.union([
@@ -65,16 +73,18 @@ export const LoginTypeModel = z.object({
 
 export type LoginType = z.infer<typeof LoginTypeModel>;
 
-export const LoginOptionsModel = z.object({
+export const ServerLoginConfigurationModel = z.object({
 	loginType: LoginTypeModel,
 	domain: z.string(),
 	port: z.number(),
 	security: ConnectionSecurityModel
 });
-export type LoginOptions = z.infer<typeof LoginOptionsModel>;
+export type ServerLoginConfiguration = z.infer<
+	typeof ServerLoginConfigurationModel
+>;
 
-export const CredentialsModel = z.object({
-	incoming: LoginOptionsModel,
+export const LoginConfigurationModel = z.object({
+	incoming: ServerLoginConfigurationModel,
 	incomingType: IncomingMailServerTypeModel
 });
-export type Credentials = z.infer<typeof CredentialsModel>;
+export type LoginConfiguration = z.infer<typeof LoginConfigurationModel>;

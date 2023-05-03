@@ -1,5 +1,5 @@
 export * from "./address";
-export * from "./config";
+export * from "./detect";
 export * from "./error";
 export * from "./flag";
 export * from "./login";
