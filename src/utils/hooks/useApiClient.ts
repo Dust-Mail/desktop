@@ -3,7 +3,7 @@ import { z } from "zod";
 import { version } from "../../../package.json";
 import useFetchClient from "./useFetchClient";
 
-import { ApiSettingsModel } from "@src/models";
+import { ApiSettingsModel, UserModel } from "@src/models";
 
 import ApiClient from "@interfaces/api";
 
@@ -78,6 +78,40 @@ const useApiClient = (): ApiClient => {
 					}
 
 					return { ...parsedOutput, data: undefined };
+				})
+				.catch(createResultFromUnknown);
+		},
+		async logout() {
+			return await fetch("/logout", {
+				useMailSessionToken: false,
+				method: "POST"
+			}).then((response) => {
+				if (!response.ok) return response;
+
+				const output = z.string().safeParse(response.data);
+
+				const parsedOutput = parseZodOutput(output);
+
+				if (!parsedOutput) return parsedOutput;
+
+				return { ok: true, data: undefined };
+			});
+		},
+		async getUser(baseUrl?: string) {
+			return await fetch("/user", {
+				useMailSessionToken: false,
+				baseUrl
+			})
+				.then((response) => {
+					if (!response.ok) return response;
+
+					const output = UserModel.safeParse(response.data);
+
+					const parsedOutput = parseZodOutput(output);
+
+					if (!parsedOutput.ok) return parsedOutput;
+
+					return parsedOutput;
 				})
 				.catch(createResultFromUnknown);
 		}

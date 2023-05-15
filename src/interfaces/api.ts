@@ -1,6 +1,6 @@
 import { Result } from "./result";
 
-import { ApiSettings } from "@src/models";
+import { ApiSettings, User } from "@src/models";
 
 export default interface ApiClient {
 	getChangelog: () => Promise<Result<string>>;
@@ -10,4 +10,6 @@ export default interface ApiClient {
 		password?: string,
 		username?: string
 	) => Promise<Result<void>>;
+	logout: () => Promise<Result<void>>;
+	getUser: (baseUrl?: string) => Promise<Result<User>>;
 }

@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import z from "zod";
 
 import useFetchClient from "./useFetchClient";
+import useIsDesktop from "./useIsDesktop";
 import useUser from "./useUser";
 
 import { messageCountForPage } from "@src/constants";
@@ -27,7 +28,7 @@ import {
 import parseZodOutput from "@utils/parseZodOutput";
 
 const useMailClient = (): MailClient => {
-	const isTauri: boolean = "__TAURI__" in window;
+	const isDesktop = useIsDesktop();
 
 	const user = useUser();
 
@@ -35,7 +36,7 @@ const useMailClient = (): MailClient => {
 
 	return {
 		async getVersion() {
-			if (isTauri) {
+			if (isDesktop) {
 				return createBaseError({
 					message: "Version check is not needed in Tauri application",
 					kind: "Unsupported"
@@ -67,7 +68,7 @@ const useMailClient = (): MailClient => {
 
 			emailAddress = emailAddressParsed.data.full;
 
-			if (isTauri) {
+			if (isDesktop) {
 				return invoke("detect_config", { emailAddress })
 					.then((data: unknown) => {
 						const output = MailConfigModel.safeParse(data);
@@ -101,8 +102,8 @@ const useMailClient = (): MailClient => {
 				return optionsResult;
 			}
 
-			if (isTauri) {
-				return invoke("login", { credentials: optionsResult.data })
+			if (isDesktop) {
+				return invoke("login", { loginConfiguration: optionsResult.data })
 					.then((data: unknown) => {
 						const output = z.string().safeParse(data);
 
@@ -130,7 +131,7 @@ const useMailClient = (): MailClient => {
 		async logout() {
 			const okResponse = { ok: true, data: undefined } as const;
 
-			if (isTauri) {
+			if (isDesktop) {
 				const token = user?.token;
 
 				return invoke("logout", { token })
@@ -151,7 +152,7 @@ const useMailClient = (): MailClient => {
 		async get(boxId) {
 			if (boxId === undefined) return MissingRequiredParam();
 
-			if (isTauri) {
+			if (isDesktop) {
 				const token = user?.token;
 
 				if (token === undefined) return NotLoggedIn();
@@ -178,7 +179,7 @@ const useMailClient = (): MailClient => {
 				.catch(createResultFromUnknown);
 		},
 		async list() {
-			if (isTauri) {
+			if (isDesktop) {
 				const token = user?.token;
 
 				if (!token) return NotLoggedIn();
@@ -210,7 +211,7 @@ const useMailClient = (): MailClient => {
 			const start = page * messageCountForPage;
 			const end = page * messageCountForPage + messageCountForPage;
 
-			if (isTauri) {
+			if (isDesktop) {
 				const token = user?.token;
 
 				if (!token) return NotLoggedIn();
@@ -241,7 +242,7 @@ const useMailClient = (): MailClient => {
 		async getMessage(messageId, boxId) {
 			if (!boxId || !messageId) return MissingRequiredParam();
 
-			if (isTauri) {
+			if (isDesktop) {
 				const token = user?.token;
 
 				if (!token) return NotLoggedIn();

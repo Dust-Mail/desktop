@@ -1,3 +1,4 @@
+import useIsDesktop from "./useIsDesktop";
 import useMailClient from "./useMailClient";
 import useUser, { useCurrentUser, useModifyUser } from "./useUser";
 
@@ -52,7 +53,7 @@ export const useMailLogin = (): ((
 	const appVersion = useStore((state) => state.appVersion);
 	const setFetching = useStore((state) => state.setFetching);
 
-	const isTauri: boolean = "__TAURI__" in window;
+	const isDesktop = useIsDesktop();
 
 	const login = useLoginFromToken();
 
@@ -62,7 +63,7 @@ export const useMailLogin = (): ((
 		// Show the fetching animation
 		setFetching(true);
 
-		if (!isTauri) {
+		if (!isDesktop) {
 			console.log("Checking if server version matches with client version...");
 
 			const versionResponseResult = await mailClient

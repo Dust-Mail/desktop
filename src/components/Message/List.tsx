@@ -9,8 +9,6 @@ import {
 } from "react";
 import { useInfiniteQuery } from "react-query";
 
-import { Preview, AppError } from "@src/models";
-
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -33,6 +31,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
 
 import { messageCountForPage } from "@src/constants";
+import { Preview, AppError } from "@src/models";
 
 import useMailClient from "@utils/hooks/useMailClient";
 import useMessageActions from "@utils/hooks/useMessageActions";
@@ -333,11 +332,12 @@ const UnMemoizedMessageList: FC = () => {
 			)}
 
 			{/* Show a load more button, unless the last page doesn't have a full set of items */}
-			{data && data.pages[data.pages.length - 1].length == messageCountForPage && (
-				<Button fullWidth sx={{ mb: 1 }} onClick={() => fetchNextPage()}>
-					Load More
-				</Button>
-			)}
+			{data &&
+				data.pages[data.pages.length - 1].length == messageCountForPage && (
+					<Button fullWidth sx={{ mb: 1 }} onClick={() => fetchNextPage()}>
+						Load More
+					</Button>
+				)}
 		</>
 	);
 };
