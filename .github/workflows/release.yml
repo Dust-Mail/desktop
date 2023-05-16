@@ -34,6 +34,12 @@ jobs:
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.65.0
+          override: true
 
       - uses: actions/cache@v3
         name: Setup pnpm cache
@@ -42,7 +48,6 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-
 
       - name: Install system dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-20.04'
@@ -53,7 +58,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts -r
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build application and upload to release
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
