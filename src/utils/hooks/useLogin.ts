@@ -13,6 +13,7 @@ import {
 
 import { Result } from "@interfaces/result";
 
+import compareVersions from "@utils/compareVersions";
 import useStore from "@utils/hooks/useStore";
 import {
 	createBaseError,
@@ -77,7 +78,9 @@ export const useMailLogin = (): ((
 			const { version: serverVersion, type: serverVersionType }: Version =
 				versionResponseResult.data;
 
-			if (serverVersion != appVersion.title) {
+			const versionsMatch = compareVersions(serverVersion, appVersion.title);
+
+			if (!versionsMatch) {
 				setFetching(false);
 
 				return createBaseError({

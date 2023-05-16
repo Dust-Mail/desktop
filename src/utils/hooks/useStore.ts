@@ -49,7 +49,7 @@ const createStore = create<Store>((set) => ({
 	setShowMessageComposer: (open) => set({ showMessageComposer: open }),
 	appVersion: {
 		title: appVersion,
-		type: import.meta.env.VITE_UNSTABLE != undefined ? "git" : "stable"
+		type: import.meta.env.PROD ? "stable" : "git"
 	}
 }));
 
