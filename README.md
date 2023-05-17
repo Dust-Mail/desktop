@@ -1,5 +1,67 @@
-# Desktop
+# Dust-Mail Web/Desktop
 
-Dust-Mail is a free and open-source email client that is built using React and Material UI for the front end. This desktop/web application is designed to connect to mail servers of any type, including IMAP or Pop3, allowing users to manage their emails effectively and efficiently. Dust-Mail is built with Vite as the main build tool and Tauri to compile it to a desktop app, making it a cross-platform solution for users who value the benefits of open-source software. The sleek and responsive design, combined with the ability to connect to any mail server, makes Dust-Mail a robust and reliable choice for both individual and (possibly) professional users. With its free and open-source nature, Dust-Mail is a valuable tool for anyone seeking a high-quality email client without the cost associated with proprietary software.
+## Description
 
-For more information about setting up a client, contributing or implementing the client api, please check the [docs](https://docs.dust.email).
+This is a simple email application built in Rust. It provides a convenient way to manage and send emails efficiently. For more info, read the [docs](https://docs.dust.email)
+
+## Features
+
+- **User-friendly Interface**
+  - Intuitive and easy-to-use interface for seamless email management.
+- **Compose Emails**
+  - Compose and send emails to multiple recipients.
+- **Inbox**
+  - View and organize incoming emails in a neatly organized inbox.
+- **Read/Reply/Forward**
+  - Read, reply to, and forward emails within the app.
+- **Attachments**
+  - Attach files to emails for easy sharing.
+- **Search**
+  - Search for specific emails or keywords within your inbox.
+- **Folders**
+  - Create custom folders to organize your emails.
+- **Mark as Read/Unread**
+  - Keep track of read and unread emails with a simple toggle.
+- **Delete/Archive**
+  - Easily delete or archive emails to keep your inbox clutter-free.
+- **Settings**
+  - Customize the app's preferences to suit your needs.
+
+## Screenshots
+
+Here are some screenshots of the application:
+
+1. ![Screenshot 1](screenshots/landing.png)
+2. ![Screenshot 2](screenshots/dashboard.png)
+
+Feel free to explore the app and provide any feedback or suggestions you may have. Enjoy using our email app built in Rust!
+
+## Installation
+
+To install and run the email app, follow these steps:
+
+1. Clone the repository:
+
+```sh
+git clone https://github.com/Dust-Mail/desktop dust-mail-desktop
+```
+
+2. Go into the directory
+
+```sh
+cd dust-mail-desktop
+```
+
+3. Install dependencies
+
+```sh
+pnpm install
+```
+
+4. Build the application
+
+```sh
+pnpm run tauri build
+```
+
+You should now find your application in the `src-tauri/target/release` directory.
