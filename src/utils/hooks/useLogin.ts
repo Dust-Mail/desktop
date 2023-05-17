@@ -54,7 +54,7 @@ export const useMailLogin = (): ((
 	const appVersion = useStore((state) => state.appVersion);
 	const setFetching = useStore((state) => state.setFetching);
 
-	const isDesktop = useIsDesktop();
+	const { isDesktop } = useIsDesktop();
 
 	const login = useLoginFromToken();
 

@@ -6,18 +6,22 @@ import Settings from "@components/Settings";
 
 export interface Settings {
 	httpServerUrl: string | null;
+	useApiOnDesktop: boolean;
 }
 
 const useSettings = (): [
 	Settings,
-	(setting: keyof Settings, value: string | null) => void
+	(setting: keyof Settings, value: string | boolean | null) => void
 ] => {
 	const [settings, setValue] = useLocalStorageState<Settings>("settings", {
-		defaultValue: { httpServerUrl: import.meta.env.VITE_DEFAULT_SERVER }
+		defaultValue: {
+			httpServerUrl: import.meta.env.VITE_DEFAULT_SERVER,
+			useApiOnDesktop: false
+		}
 	});
 
 	const setSetting = useCallback(
-		(setting: keyof Settings, value: string | null) => {
+		(setting: keyof Settings, value: string | boolean | null) => {
 			setValue({ ...settings, [setting]: value });
 		},
 		[settings]

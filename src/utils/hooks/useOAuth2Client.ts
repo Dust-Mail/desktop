@@ -63,7 +63,7 @@ const waitForWindowClose = async (popup: Window): Promise<void> => {
 };
 
 const useOAuth2Client = (): OAuth2Client => {
-	const isDesktop = useIsDesktop();
+	const { isDesktop } = useIsDesktop();
 
 	const getPublicTokens = useGetPublicOAuthTokens();
 

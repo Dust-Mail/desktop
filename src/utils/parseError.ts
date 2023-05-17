@@ -36,6 +36,15 @@ export const createBaseError = (error: AppError): ErrorResult => ({
 });
 
 export const createErrorFromUnknown = (unknown: unknown): AppError => {
+	const errorKind = "Unknown";
+
+	if (typeof unknown === "string") return { kind: errorKind, message: unknown };
+
+	const stringified = JSON.stringify(unknown);
+
+	if (stringified === "{}")
+		return { kind: errorKind, message: unknown as string };
+
 	return {
 		kind: "Unknown",
 		message: JSON.stringify(unknown)

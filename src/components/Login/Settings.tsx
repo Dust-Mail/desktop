@@ -2,7 +2,7 @@ import z from "zod";
 
 import { repository } from "../../../package.json";
 
-import { FC, useCallback, useEffect } from "react";
+import { FC, useEffect } from "react";
 import { useState } from "react";
 
 import Alert from "@mui/material/Alert";
@@ -14,27 +14,26 @@ import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
 import Link from "@mui/material/Link";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
 import Modal from "@mui/material/Modal";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorIcon from "@mui/icons-material/Error";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import SettingsIcon from "@mui/icons-material/Settings";
-
-import { AppError, ApiSettings, User } from "@src/models";
-
-import { Result } from "@interfaces/result";
 
 import modalStyles from "@styles/modal";
 
-import useApiClient from "@utils/hooks/useApiClient";
+import useApi from "@utils/hooks/useApi";
+import useIsDesktop from "@utils/hooks/useIsDesktop";
 import useSettings from "@utils/hooks/useSettings";
 import useTheme from "@utils/hooks/useTheme";
-import { createResultFromUnknown, errorToString } from "@utils/parseError";
+import { errorToString } from "@utils/parseError";
 
 const LoginSettingsMenu: FC = () => {
 	const theme = useTheme();
@@ -43,85 +42,15 @@ const LoginSettingsMenu: FC = () => {
 
 	const [isOpen, setOpen] = useState(false);
 	const [apiUrl, setApiUrl] = useState(settings.httpServerUrl ?? "");
-	const [user, setUser] = useState<User | null>(null);
 	const [password, setPassword] = useState("");
 
-	const userIsLoggedIn =
-		typeof user !== "string" && user?.loggedIn !== undefined;
+	const api = useApi(apiUrl);
 
-	const apiClient = useApiClient();
-
-	const [serverSettings, setServerSettings] = useState<ApiSettings | null>(
-		null
-	);
-	const [fetching, setFetching] = useState(false);
-
-	const [error, setError] = useState<AppError | null>(null);
-
-	const fetchUser = useCallback(async (baseUrl?: string) => {
-		const result = await apiClient.getUser(baseUrl);
-
-		if (result.ok) setUser(result.data);
-		else setError(result.error);
-	}, []);
-
-	const fetchApiSettings = useCallback(
-		async (baseUrl: string): Promise<void> => {
-			setFetching(true);
-			setError(null);
-			setServerSettings(null);
-
-			const response = await apiClient
-				.getSettings(baseUrl)
-				.catch(createResultFromUnknown);
-
-			setFetching(false);
-
-			if (response.ok) {
-				setServerSettings(response.data);
-			} else {
-				setError(response.error);
-			}
-		},
-		[]
-	);
-
-	const logoutFromApiServer = useCallback(async () => {
-		const result = await apiClient.logout().catch(createResultFromUnknown);
-
-		if (!result.ok) {
-			setError(result.error);
-		} else {
-			fetchUser();
-		}
-	}, []);
-
-	const loginToApiServer = useCallback(
-		async (
-			baseUrl?: string,
-			password?: string,
-			username?: string
-		): Promise<Result<void>> => {
-			const result = await apiClient
-				.login(baseUrl, password, username)
-				.catch(createResultFromUnknown);
-
-			if (result.ok) fetchUser(baseUrl);
-
-			return result;
-		},
-		[]
-	);
+	const { isDesktop, usesApiForMail } = useIsDesktop();
 
 	useEffect(() => {
-		if (isOpen) {
-			fetchUser(apiUrl).finally(() => fetchApiSettings(apiUrl));
-		}
+		if (!isOpen) setSetting("httpServerUrl", apiUrl);
 	}, [isOpen]);
-
-	useEffect(() => {
-		setError(null);
-	}, [isOpen, password, apiUrl]);
 
 	return (
 		<>
@@ -167,6 +96,38 @@ const LoginSettingsMenu: FC = () => {
 								</Typography>
 							</Box>
 
+							{isDesktop && (
+								<Box>
+									<Typography
+										color={theme.palette.text.secondary}
+										variant="subtitle1"
+									>
+										Because you are using the desktop version of{" "}
+										{import.meta.env.VITE_APP_NAME}, you do not need a backend
+										server (unless you want to login using oAuth). But you can
+										still switch over to using one to fetch your mail, instead
+										of your desktop client connecting to the mail server.
+									</Typography>
+
+									<ListItem>
+										<ListItemText
+											id="switch-desktop-api-use"
+											primary="Use backend server to fetch mail"
+										/>
+										<Switch
+											edge="end"
+											onChange={() =>
+												setSetting("useApiOnDesktop", !settings.useApiOnDesktop)
+											}
+											checked={settings.useApiOnDesktop}
+											inputProps={{
+												"aria-labelledby": "switch-desktop-api-use"
+											}}
+										/>
+									</ListItem>
+								</Box>
+							)}
+
 							<Stack direction="row" spacing={2}>
 								<FormControl fullWidth variant="outlined">
 									<InputLabel htmlFor="custom-server">
@@ -177,29 +138,29 @@ const LoginSettingsMenu: FC = () => {
 											setApiUrl(z.string().parse(e.currentTarget.value))
 										}
 										value={apiUrl}
-										disabled={userIsLoggedIn}
+										disabled={api.isLoggedIn}
 										id="custom-server"
 										label="Custom server url/path"
 										type="text"
 										endAdornment={
 											<InputAdornment position="end">
-												{error !== null && <ErrorIcon color="error" />}
-												{serverSettings !== null && error === null && (
+												{api.error !== null && <ErrorIcon color="error" />}
+												{api.settings !== null && api.error === null && (
 													<CheckIcon color="success" />
 												)}
-												{fetching && <CircularProgress />}
+												{api.isFetching && <CircularProgress />}
 											</InputAdornment>
 										}
 									/>
 								</FormControl>
-								<IconButton
+								{/* <IconButton
 									disabled={userIsLoggedIn}
 									onClick={() => fetchApiSettings(apiUrl)}
 								>
 									<RefreshIcon />
-								</IconButton>
+								</IconButton> */}
 							</Stack>
-							{serverSettings?.authorization && (
+							{api.settings?.authorization && (
 								<Stack direction="column">
 									<TextField
 										fullWidth
@@ -207,7 +168,7 @@ const LoginSettingsMenu: FC = () => {
 											setPassword(z.string().parse(e.currentTarget.value))
 										}
 										value={password}
-										disabled={userIsLoggedIn}
+										disabled={api.isLoggedIn}
 										id="password"
 										required
 										label="Password for server"
@@ -217,11 +178,11 @@ const LoginSettingsMenu: FC = () => {
 								</Stack>
 							)}
 
-							{error !== null && (
-								<Alert severity="error">{errorToString(error)}</Alert>
+							{api.error !== null && (
+								<Alert severity="error">{errorToString(api.error)}</Alert>
 							)}
 
-							{userIsLoggedIn && error === null && (
+							{api.isLoggedIn && api.error === null && (
 								<Alert severity="success">
 									Currently logged in to &quot;{apiUrl}&quot;
 								</Alert>
@@ -229,32 +190,25 @@ const LoginSettingsMenu: FC = () => {
 
 							<Button
 								onClick={async () => {
-									if (userIsLoggedIn) {
-										await logoutFromApiServer();
+									if (api.isLoggedIn) {
+										await api.logout();
 									} else {
-										const loginResult = await loginToApiServer(
-											apiUrl,
-											password
-										);
+										await api.login(undefined, password);
 
-										if (loginResult.ok) {
-											setSetting("httpServerUrl", apiUrl);
-										} else {
-											setError(loginResult.error);
-										}
+										setSetting("httpServerUrl", apiUrl);
 									}
 								}}
 								fullWidth
 								variant="contained"
 							>
-								{userIsLoggedIn ? "Logout" : "Login"}
+								{api.isLoggedIn ? "Logout" : "Login"}
 							</Button>
 
 							<Button
 								onClick={() => setApiUrl(import.meta.env.VITE_DEFAULT_SERVER)}
 								disabled={
 									apiUrl == import.meta.env.VITE_DEFAULT_SERVER ||
-									userIsLoggedIn
+									api.isLoggedIn
 								}
 							>
 								Reset to default value

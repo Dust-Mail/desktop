@@ -18,6 +18,8 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 
+import useApi from "@utils/hooks/useApi";
+import useIsDesktop from "@utils/hooks/useIsDesktop";
 import useMailClient from "@utils/hooks/useMailClient";
 import useStore from "@utils/hooks/useStore";
 import { createResultFromUnknown, errorToString } from "@utils/parseError";
@@ -43,6 +45,10 @@ const ConfigurationDetector: FC<{
 
 	const mailClient = useMailClient();
 
+	const api = useApi();
+
+	const { isDesktop, usesApiForMail } = useIsDesktop();
+
 	useEffect(() => setError(null), [username, displayName]);
 
 	useEffect(() => {
@@ -50,6 +56,11 @@ const ConfigurationDetector: FC<{
 	}, []);
 
 	const missingFields = username.length == 0;
+
+	const buttonShouldBeDisabled =
+		missingFields ||
+		fetching ||
+		(usesApiForMail && (api.isFetching || !api.isWorking));
 
 	/**
 	 * Runs when the form should be submitted to the server
@@ -145,12 +156,19 @@ const ConfigurationDetector: FC<{
 
 					<Button
 						fullWidth
-						disabled={fetching || missingFields}
+						disabled={buttonShouldBeDisabled}
 						type="submit"
 						variant="contained"
 					>
 						Next
 					</Button>
+					{error === null && !api.isWorking && usesApiForMail && (
+						<Alert sx={{ textAlign: "left" }} severity="warning">
+							<AlertTitle>Warning</AlertTitle>The currently set Dust-Mail
+							backend server is not working. Please configure it using the
+							settings icon in the top right.
+						</Alert>
+					)}
 					{error && (
 						<Alert sx={{ textAlign: "left" }} severity="error">
 							<AlertTitle>Error</AlertTitle>

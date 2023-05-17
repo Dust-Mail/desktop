@@ -5,7 +5,7 @@ import { ApiResponseModel } from "@src/models";
 
 import { Result } from "@interfaces/result";
 
-import { createBaseError, parseError } from "@utils/parseError";
+import { createBaseError, createResultFromUnknown } from "@utils/parseError";
 import parseJsonAsync from "@utils/parseJson";
 import parseZodOutput from "@utils/parseZodOutput";
 
@@ -108,7 +108,7 @@ const useFetchClient = (): FetchFunction => {
 						createBaseError({ kind: "ParseJSON", message: error })
 					);
 			})
-			.catch(parseError);
+			.catch(createResultFromUnknown);
 	};
 
 	return fetch;
