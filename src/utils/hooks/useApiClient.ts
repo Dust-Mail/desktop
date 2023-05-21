@@ -15,13 +15,16 @@ const useApiClient = (): ApiClient => {
 
 	return {
 		async getChangelog() {
+			const path = [import.meta.env.VITE_REPO, version, "CHANGELOG.md"].join(
+				"/"
+			);
+
+			const changeLogUrl = new URL(path, "https://raw.githubusercontent.com");
+
 			const response = await window
-				.fetch(
-					`https://raw.githubusercontent.com/${
-						import.meta.env.VITE_REPO
-					}/${version}/CHANGELOG.md`,
-					{ method: "GET" }
-				)
+				.fetch(changeLogUrl, {
+					method: "GET"
+				})
 				.then((response) => response.text())
 				.then((data) => ({ ok: true as const, data }))
 				.catch((error) => {
