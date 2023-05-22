@@ -50,6 +50,7 @@
 		"react-router-dom": "^6.3.0",
 		"slate": "^0.81.1",
 		"slate-react": "^0.81.0",
+		"use-debounce": "^9.0.4",
 		"use-local-storage-state": "^17.2.0",
 		"zod": "^3.21.4",
 		"zustand": "^4.0.0-rc.1"

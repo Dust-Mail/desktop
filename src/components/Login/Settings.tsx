@@ -1,3 +1,4 @@
+import { useDebounce } from "use-debounce";
 import z from "zod";
 
 import { repository } from "../../../package.json";
@@ -42,11 +43,12 @@ const LoginSettingsMenu: FC = () => {
 
 	const [isOpen, setOpen] = useState(false);
 	const [apiUrl, setApiUrl] = useState(settings.httpServerUrl ?? "");
+	const [apiUrlDebounced] = useDebounce(apiUrl, 1000);
 	const [password, setPassword] = useState("");
 
-	const api = useApi(apiUrl);
+	const api = useApi(apiUrlDebounced);
 
-	const { isDesktop, usesApiForMail } = useIsDesktop();
+	const { isDesktop } = useIsDesktop();
 
 	useEffect(() => {
 		if (!isOpen) setSetting("httpServerUrl", apiUrl);
