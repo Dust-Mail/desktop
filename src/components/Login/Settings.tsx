@@ -52,6 +52,7 @@ const LoginSettingsMenu: FC = () => {
 
 	useEffect(() => {
 		if (!isOpen) setSetting("httpServerUrl", apiUrl);
+		else api.validateServer();
 	}, [isOpen]);
 
 	return (

@@ -2,8 +2,8 @@ import useApiClient from "./useApiClient";
 import useIsDesktop from "./useIsDesktop";
 import useSettings from "./useSettings";
 
-import { useCallback, useState } from "react";
-import { useQuery } from "react-query";
+import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
 
 import { ApiSettings, User } from "@models/api";
 import { AppError } from "@models/error";
@@ -17,6 +17,7 @@ export interface Api {
 	error: AppError | null;
 	sessionTokens: string[];
 	settings: ApiSettings | null;
+	validateServer: () => Promise<void>;
 	login: (username?: string, password?: string) => Promise<void>;
 	logout: () => Promise<void>;
 }
@@ -30,6 +31,8 @@ const useApi = (baseUrl?: string): Api => {
 
 	const enabled = usesApiForMail;
 
+	const queryClient = useQueryClient();
+
 	baseUrl = baseUrl ?? appSettings.httpServerUrl ?? undefined;
 
 	const [loginError, setLoginError] = useState<AppError | null>(null);
@@ -42,7 +45,7 @@ const useApi = (baseUrl?: string): Api => {
 		error: settingsError,
 		isLoading: isFetchingSettings
 	} = useQuery<ApiSettings, AppError>(
-		["apiSettings", baseUrl],
+		["api", "settings", baseUrl],
 		async () => {
 			const result = await apiClient
 				.getSettings(baseUrl)
@@ -59,7 +62,7 @@ const useApi = (baseUrl?: string): Api => {
 		error: userError,
 		isLoading: isFetchingUser
 	} = useQuery<User, AppError>(
-		["apiUser", baseUrl],
+		["api", "user", baseUrl],
 		async () => {
 			const result = await apiClient
 				.getUser(baseUrl)
@@ -70,6 +73,10 @@ const useApi = (baseUrl?: string): Api => {
 		},
 		{ retry: false, enabled }
 	);
+
+	useEffect(() => {
+		setLoginError(null);
+	}, [user, settings]);
 
 	const error = settingsError ?? userError ?? loginError;
 
@@ -106,6 +113,12 @@ const useApi = (baseUrl?: string): Api => {
 		else setCouldBeLoggedIn(false);
 	}, []);
 
+	const validateServer = useCallback(async () => {
+		return await queryClient.invalidateQueries<string>({
+			predicate: (query) => query.queryKey.at(0) === "api"
+		});
+	}, []);
+
 	return {
 		isWorking: error === null,
 		isLoggedIn,
@@ -113,6 +126,7 @@ const useApi = (baseUrl?: string): Api => {
 		error,
 		sessionTokens,
 		settings: settings ?? null,
+		validateServer,
 		login,
 		logout
 	};
