@@ -9,15 +9,12 @@ import { AppError, MailBox } from "@src/models";
 import Box from "@interfaces/box";
 
 import findBoxInPrimaryBoxesList from "@utils/findBoxInPrimaryBoxesList";
-import {
-	createBaseError,
-	createErrorFromUnknown,
-	errorToString
-} from "@utils/parseError";
+import { createResultFromUnknown, errorToString } from "@utils/parseError";
 
 interface UseSelectedBox {
 	box: Box | null;
 	error: string | null;
+	fetching: boolean;
 	setSelectedBox: (boxID?: string) => void;
 }
 
@@ -43,12 +40,14 @@ const useSelectedBox = (): UseSelectedBox => {
 
 	const mailClient = useMailClient();
 
-	const { data, error } = useQuery<MailBox, AppError>(
+	const {
+		data,
+		error,
+		isLoading: fetching
+	} = useQuery<MailBox, AppError>(
 		["box", boxId],
 		async () => {
-			const result = await mailClient
-				.get(boxId)
-				.catch((error) => createBaseError(createErrorFromUnknown(error)));
+			const result = await mailClient.get(boxId).catch(createResultFromUnknown);
 
 			if (result.ok) return result.data;
 			else throw result.error;
@@ -58,23 +57,18 @@ const useSelectedBox = (): UseSelectedBox => {
 		}
 	);
 
-	const selectedBox: UseSelectedBox = useMemo(() => {
-		const primaryBoxData = data
-			? findBoxInPrimaryBoxesList(data.id)
-			: undefined;
+	const primaryBoxData = data ? findBoxInPrimaryBoxesList(data.id) : undefined;
 
-		return {
-			box: boxId
-				? data
-					? { ...data, icon: primaryBoxData?.icon }
-					: defaultBox(boxId)
-				: null,
-			error: error ? errorToString(error) : null,
-			setSelectedBox
-		};
-	}, [data, error, setSelectedBox]);
-
-	return selectedBox;
+	return {
+		box: boxId
+			? data
+				? { ...data, icon: primaryBoxData?.icon }
+				: defaultBox(boxId)
+			: null,
+		error: error ? errorToString(error) : null,
+		setSelectedBox,
+		fetching
+	};
 };
 
 export default useSelectedBox;

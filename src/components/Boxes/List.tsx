@@ -4,12 +4,15 @@ import { useEffect, useMemo, memo, FC, useState, MouseEvent } from "react";
 
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
+import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 
 import AddIcon from "@mui/icons-material/Add";
 import CheckBoxIcon from "@mui/icons-material/CheckBoxOutlineBlank";
@@ -28,6 +31,7 @@ import useRenameBox from "@utils/hooks/useRenameBox";
 import useSelectedBox from "@utils/hooks/useSelectedBox";
 import useSnackbar from "@utils/hooks/useSnackbar";
 import useStore from "@utils/hooks/useStore";
+import useTheme from "@utils/hooks/useTheme";
 
 import FolderTree, {
 	FolderTreeProps,
@@ -195,13 +199,15 @@ const ActionBar = memo(UnMemoizedActionBar);
 const UnMemoizedBoxesList: FC<{ clickOnBox?: (e: MouseEvent) => void }> = ({
 	clickOnBox
 }) => {
+	const theme = useTheme();
+
 	const {
 		box: selectedBox,
 		error: selectedBoxError,
 		setSelectedBox
 	} = useSelectedBox();
 
-	const { boxes, error: boxesError } = useBoxes();
+	const { boxes, fetching: fetchingBoxes, error: boxesError } = useBoxes();
 
 	const [showSelector, setShowSelector] = useState(false);
 
@@ -285,24 +291,49 @@ const UnMemoizedBoxesList: FC<{ clickOnBox?: (e: MouseEvent) => void }> = ({
 				showSelector={showSelector}
 				setShowSelector={setShowSelector}
 			/>
+			<Divider />
 			<CheckedBoxesContext.Provider value={checkedBoxesStore}>
-				{(primaryBoxes || otherBoxes) && <Divider />}
-				{primaryBoxes && (
-					<FolderTree
-						title="Primary folders"
-						{...folderTreeProps}
-						boxes={primaryBoxes}
-					/>
-				)}
+				{!fetchingBoxes && (
+					<>
+						{primaryBoxes && (
+							<FolderTree
+								title="Primary folders"
+								{...folderTreeProps}
+								boxes={primaryBoxes}
+							/>
+						)}
 
-				{primaryBoxes && otherBoxes && otherBoxes.length != 0 && <Divider />}
-				{otherBoxes && otherBoxes.length != 0 && (
-					<FolderTree
-						title="Other folders"
-						{...folderTreeProps}
-						boxes={otherBoxes}
-					/>
+						{primaryBoxes && otherBoxes && otherBoxes.length != 0 && (
+							<Divider />
+						)}
+						{otherBoxes && otherBoxes.length != 0 && (
+							<FolderTree
+								title="Other folders"
+								{...folderTreeProps}
+								boxes={otherBoxes}
+							/>
+						)}
+					</>
 				)}
+				{fetchingBoxes &&
+					[...Array(10)].map((_, i) => {
+						return (
+							<ListItemButton disabled key={i}>
+								<ListItemIcon>
+									<Skeleton variant="circular" width={40} height={40} />
+								</ListItemIcon>
+								<ListItemText>
+									<Typography noWrap textOverflow="ellipsis">
+										<Skeleton
+											variant="rectangular"
+											sx={{ minWidth: theme.spacing(16) }}
+											height={40}
+										/>
+									</Typography>
+								</ListItemText>
+							</ListItemButton>
+						);
+					})}
 			</CheckedBoxesContext.Provider>
 		</>
 	);

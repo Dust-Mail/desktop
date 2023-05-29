@@ -12,6 +12,7 @@ import { createResultFromUnknown, errorToString } from "@utils/parseError";
 type UseBoxes = {
 	boxes: MailBoxList | void;
 	error: string | null;
+	fetching: boolean;
 	findBox: (id: string) => MailBox | void;
 };
 
@@ -20,18 +21,19 @@ const useBoxes = (): UseBoxes => {
 
 	const user = useUser();
 
-	const { data: boxes, error } = useQuery<MailBoxList, AppError>(
-		["boxes", user?.id],
-		async () => {
-			const result = await mailClient.list().catch(createResultFromUnknown);
+	const {
+		data: boxes,
+		error,
+		isLoading: fetching
+	} = useQuery<MailBoxList, AppError>(["boxes", user?.id], async () => {
+		const result = await mailClient.list().catch(createResultFromUnknown);
 
-			if (result.ok) {
-				return result.data;
-			} else {
-				throw result.error;
-			}
+		if (result.ok) {
+			return result.data;
+		} else {
+			throw result.error;
 		}
-	);
+	});
 
 	const findBox = useCallback(
 		(id: string) => {
@@ -42,7 +44,12 @@ const useBoxes = (): UseBoxes => {
 		[boxes]
 	);
 
-	return { boxes, error: error ? errorToString(error) : null, findBox };
+	return {
+		boxes,
+		error: error ? errorToString(error) : null,
+		findBox,
+		fetching
+	};
 };
 
 export default useBoxes;
