@@ -65,7 +65,16 @@
 				"timestampUrl": ""
 			}
 		},
-		"security": {},
+		"security": {
+			"csp": "default-src 'self'",
+			"dangerousRemoteDomainIpcAccess": [
+				{
+					"domain": "about:blank",
+					"windows": ["main"],
+					"enableTauriAPI": false
+				}
+			]
+		},
 		"updater": {
 			"active": false,
 			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEM3OTY1OTUxNjk3ODMxRApSV1FkZzVjV2xXVjVETmsyblI4b1p0eDVrRHRPUlkvb3d1VjZKMnFYME1nUXdyNVpiNlNwR09KVQo="
