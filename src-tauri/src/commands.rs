@@ -1,5 +1,5 @@
 use dust_mail::{
-    detect::{self, Config},
+    detect::{Config, DetectClient},
     session::FullLoginOptions,
     types::{MailBox, Message, Preview},
 };
@@ -10,7 +10,7 @@ use tauri::State;
 
 #[tauri::command(async)]
 pub async fn detect_config(email_address: String) -> Result<Config> {
-    Ok(detect::from_email(&email_address).await?)
+    Ok(DetectClient::from_email(&email_address).await?)
 }
 
 #[tauri::command(async)]
