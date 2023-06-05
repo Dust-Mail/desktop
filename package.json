@@ -13,7 +13,7 @@
 		"email": "contact@guusvanmeerveld.dev"
 	},
 	"contributors": [],
-	"packageManager": "pnpm@7.5.2",
+	"packageManager": "pnpm@8.6.0",
 	"size-limit": [
 		{
 			"path": "dist/assets/*.js",
