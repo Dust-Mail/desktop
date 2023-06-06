@@ -7,7 +7,7 @@ RUN apk add --no-cache curl git
 
 RUN corepack enable
 
-RUN corepack prepare pnpm@7.9.1 --activate
+RUN corepack prepare pnpm@8.6.0 --activate
 
 WORKDIR /repo
 
