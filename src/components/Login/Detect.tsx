@@ -38,6 +38,10 @@ const ConfigurationDetector: FC<{
 		(state) => state.defaults
 	);
 
+	const setShowPasswordBasedConfigurator = passwordBasedConfiguratorStore(
+		(state) => state.setMenuOpen
+	);
+
 	const showOAuthBasedConfigurator = useOAuthBasedConfigurator();
 	const showPasswordBasedConfigurator = usePasswordBasedConfigurator();
 
@@ -47,7 +51,7 @@ const ConfigurationDetector: FC<{
 
 	const api = useApi();
 
-	const { isDesktop, usesApiForMail } = useIsDesktop();
+	const { usesApiForMail } = useIsDesktop();
 
 	useEffect(() => setError(null), [username, displayName]);
 
@@ -170,10 +174,22 @@ const ConfigurationDetector: FC<{
 						</Alert>
 					)}
 					{error && (
-						<Alert sx={{ textAlign: "left" }} severity="error">
-							<AlertTitle>Error</AlertTitle>
-							{error}
-						</Alert>
+						<>
+							<Alert sx={{ textAlign: "left" }} severity="error">
+								<AlertTitle>Error</AlertTitle>
+								{error}
+							</Alert>
+							<Button
+								fullWidth
+								variant="text"
+								onClick={() => {
+									setPasswordBasedConfiguratorToDefaults(username);
+									setShowPasswordBasedConfigurator(true);
+								}}
+							>
+								Continue to configuration menu anyway
+							</Button>
+						</>
 					)}
 				</Stack>
 			</form>
