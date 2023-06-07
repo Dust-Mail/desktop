@@ -1,10 +1,10 @@
 import { FC, memo, MouseEvent, useMemo, useState } from "react";
 
-import { Preview } from "@src/models";
-
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+
+import { Preview } from "@src/models";
 
 import createAvatarUrl from "@utils/avatarUrl";
 import { useSetSelectedMessage } from "@utils/hooks/useSelectedMessage";
@@ -55,7 +55,7 @@ const UnMemoizedMessageListItem: FC<{
 	const primarySender = message.from[0] ?? null;
 
 	const avatar =
-		primarySender?.address !== null
+		primarySender?.address != null
 			? createAvatarUrl(primarySender.address)
 			: undefined;
 
