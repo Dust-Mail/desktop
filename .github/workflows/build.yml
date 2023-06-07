@@ -6,9 +6,9 @@ permissions:
 on:
   push:
     paths:
-      - src
-      - public
-      - src-tauri
+      - src/**
+      - public/**
+      - src-tauri/**
       - Dockerfile
       - .dockerignore
       - tsconfig.json
