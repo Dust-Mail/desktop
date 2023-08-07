@@ -49,15 +49,15 @@ const AccountListItem: FC<{ user: User }> = ({ user }) => {
 	const [currentUser, setCurrentUser] = useCurrentUser();
 
 	const avatar =
-		user?.usernames.incoming !== undefined
-			? createAvatarUrl(user?.usernames.incoming)
+		user?.displayName !== undefined
+			? createAvatarUrl(user.displayName)
 			: undefined;
 
 	return (
 		<MenuItem
 			onClick={() => {
-				if (currentUser?.id != user.id) {
-					setCurrentUser(user.id);
+				if (currentUser?.token != user.token) {
+					setCurrentUser(user.token);
 				}
 			}}
 		>
@@ -70,10 +70,10 @@ const AccountListItem: FC<{ user: User }> = ({ user }) => {
 						mr: 1
 					}}
 					src={avatar}
-					alt={user.usernames.incoming.toUpperCase()}
+					alt={user.displayName.toUpperCase()}
 				/>
 			</ListItemIcon>
-			<ListItemText>{user.usernames.incoming}</ListItemText>
+			<ListItemText>{user.displayName}</ListItemText>
 		</MenuItem>
 	);
 };
@@ -88,10 +88,10 @@ const AccountList: FC = () => {
 			{currentUser && <AccountListItem user={currentUser} />}
 			<Divider />
 			{users
-				?.filter((user) => user.id != currentUser?.id)
+				?.filter((user) => user.token != currentUser?.token)
 				.slice(0, 5)
 				.map((user) => (
-					<AccountListItem key={user.id} user={user} />
+					<AccountListItem key={user.token} user={user} />
 				))}
 		</>
 	);
@@ -123,8 +123,8 @@ const UnMemoizedAvatar: FC = () => {
 	const setShowSettings = useStore((state) => state.setShowSettings);
 
 	const avatar =
-		user?.usernames.incoming !== undefined
-			? createAvatarUrl(user?.usernames.incoming)
+		user?.displayName !== undefined
+			? createAvatarUrl(user.displayName)
 			: undefined;
 
 	// const setShowMessageComposer = useStore(
@@ -147,7 +147,7 @@ const UnMemoizedAvatar: FC = () => {
 				{
 					title: "Logout",
 					icon: <LogoutIcon fontSize="small" />,
-					onClick: () => logout()
+					onClick: async () => await logout()
 				}
 			],
 			[setShowSettings, logout]
@@ -162,7 +162,7 @@ const UnMemoizedAvatar: FC = () => {
 				<MUIAvatar
 					sx={{ bgcolor: theme.palette.secondary.main }}
 					src={avatar}
-					alt={user?.usernames.incoming.toUpperCase()}
+					alt={user?.displayName.toUpperCase()}
 				/>
 			</IconButton>
 

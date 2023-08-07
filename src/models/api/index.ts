@@ -14,7 +14,7 @@ export const ApiErrorResponseModel = z.object({
 });
 export type ApiErrorResponse = z.infer<typeof ApiErrorResponseModel>;
 
-export const ApiResponseModel = z.union([
+export const ApiResponseModel = z.discriminatedUnion("ok", [
 	ApiErrorResponseModel,
 	ApiOkResponseModel
 ]);

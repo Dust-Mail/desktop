@@ -1,32 +1,37 @@
 import { create } from "zustand";
 
-import BaseConfiguration, { clean as cleanBase } from "./base";
+import BaseConfiguration, {
+	clean as cleanBase,
+	convertToRemoteServer
+} from "./base";
 
 import { incomingPriorityList, outgoingPriorityList } from "@src/constants";
 
 import { MailConfig, OAuth2Config } from "@models/detect";
-import { IncomingMailServerType, OutgoingMailServerType } from "@models/login";
+import {
+	Credentials,
+	IncomingEmailProtocol,
+	IncomingMailServerType,
+	LoginConfiguration,
+	OutgoingEmailProtocol,
+	OutgoingMailServerType
+} from "@models/login";
 
-export type OAuthBasedConfiguration = BaseConfiguration & {
-	username: string;
-};
-
-type IncomingOAuthBasedConfiguration = OAuthBasedConfiguration & {
+type IncomingOAuthBasedConfiguration = BaseConfiguration & {
 	mailServerType: IncomingMailServerType;
 };
 
-type OutgoingOAuthBasedConfiguration = OAuthBasedConfiguration & {
+type OutgoingOAuthBasedConfiguration = {
 	mailServerType: OutgoingMailServerType;
-};
+} & BaseConfiguration;
 
-export type ConfigurationMap = {
+export type OAuthConfigurationMap = {
 	incoming: IncomingOAuthBasedConfiguration;
 	outgoing: OutgoingOAuthBasedConfiguration;
 };
 
-const clean: OAuthBasedConfiguration = {
-	...cleanBase,
-	username: ""
+const clean: BaseConfiguration = {
+	...cleanBase
 };
 
 interface OAuthBasedConfiguratorStore {
@@ -38,8 +43,10 @@ interface OAuthBasedConfiguratorStore {
 	setOAuthConfig: (config: OAuth2Config) => void;
 	provider: string;
 	setProvider: (provider: string) => void;
-	configuration: ConfigurationMap;
-	setConfiguration: (configuration: ConfigurationMap) => void;
+	username: string;
+	setUsername: (username: string) => void;
+	configuration: OAuthConfigurationMap;
+	setConfiguration: (configuration: OAuthConfigurationMap) => void;
 }
 
 const oAuthBasedConfiguratorStore = create<OAuthBasedConfiguratorStore>(
@@ -52,6 +59,8 @@ const oAuthBasedConfiguratorStore = create<OAuthBasedConfiguratorStore>(
 		setOAuthConfig: (config) => set({ oAuthConfig: config }),
 		provider: "",
 		setProvider: (provider) => set({ provider }),
+		username: "",
+		setUsername: (username) => set({ username }),
 		configuration: {
 			incoming: { ...clean, mailServerType: "Imap" },
 			outgoing: { ...clean, mailServerType: "Smtp" }
@@ -63,7 +72,8 @@ const oAuthBasedConfiguratorStore = create<OAuthBasedConfiguratorStore>(
 export const useOAuthBasedConfigurator = (): ((options: {
 	provider: string;
 	displayName: string;
-	configuration: ConfigurationMap;
+	username: string;
+	configuration: OAuthConfigurationMap;
 	oAuthConfig: OAuth2Config;
 }) => void) => {
 	const setConfiguration = oAuthBasedConfiguratorStore(
@@ -73,6 +83,7 @@ export const useOAuthBasedConfigurator = (): ((options: {
 	const setDisplayName = oAuthBasedConfiguratorStore(
 		(state) => state.setDisplayName
 	);
+	const setUsername = oAuthBasedConfiguratorStore((state) => state.setUsername);
 	const setOAuthConfig = oAuthBasedConfiguratorStore(
 		(state) => state.setOAuthConfig
 	);
@@ -83,6 +94,7 @@ export const useOAuthBasedConfigurator = (): ((options: {
 		setShowMenu(true);
 
 		setConfiguration(options.configuration);
+		setUsername(options.username);
 		setProvider(options.provider);
 		setDisplayName(options.displayName);
 		setOAuthConfig(options.oAuthConfig);
@@ -90,9 +102,8 @@ export const useOAuthBasedConfigurator = (): ((options: {
 };
 
 export const convertDetectedConfigToOAuthConfiguration = (
-	username: string,
 	detectedConfig: MailConfig
-): ConfigurationMap | null => {
+): OAuthConfigurationMap | null => {
 	if (detectedConfig.type.multiServer === undefined) return null;
 
 	const servers = detectedConfig.type.multiServer;
@@ -110,9 +121,8 @@ export const convertDetectedConfigToOAuthConfiguration = (
 			incomingServer = {
 				host: foundServer.domain,
 				port: foundServer.port,
-				mailServerType,
 				security: foundServer.security,
-				username
+				mailServerType
 			};
 		}
 	}
@@ -130,9 +140,8 @@ export const convertDetectedConfigToOAuthConfiguration = (
 			outgoingServer = {
 				host: foundServer.domain,
 				port: foundServer.port,
-				mailServerType,
 				security: foundServer.security,
-				username
+				mailServerType
 			};
 		}
 	}
@@ -140,6 +149,71 @@ export const convertDetectedConfigToOAuthConfiguration = (
 	if (incomingServer === null || outgoingServer === null) return null;
 
 	return { incoming: incomingServer, outgoing: outgoingServer };
+};
+
+export const convertToLoginConfiguration = (
+	configuration: OAuthConfigurationMap,
+	username: string,
+	token: string
+): LoginConfiguration => {
+	let incoming: IncomingEmailProtocol;
+
+	const oAuthCredentials: Credentials = { OAuth: { username, token } };
+
+	const {
+		mailServerType: incomingMailServerType,
+		...incomingBaseConfiguration
+	} = configuration.incoming;
+
+	switch (incomingMailServerType) {
+		case "Imap":
+			incoming = {
+				Imap: {
+					server: convertToRemoteServer(incomingBaseConfiguration),
+					credentials: oAuthCredentials
+				}
+			};
+			break;
+		case "Pop":
+			incoming = {
+				Pop: {
+					server: convertToRemoteServer(incomingBaseConfiguration),
+					credentials: oAuthCredentials
+				}
+			};
+			break;
+		case "Exchange":
+			incoming = {
+				Exchange: {
+					server: convertToRemoteServer(incomingBaseConfiguration),
+					credentials: oAuthCredentials
+				}
+			};
+			break;
+	}
+
+	let outgoing: OutgoingEmailProtocol;
+
+	const {
+		mailServerType: outgoingMailServerType,
+		...outgoingBaseConfiguration
+	} = configuration.outgoing;
+
+	switch (outgoingMailServerType) {
+		case "Smtp":
+			outgoing = {
+				Smtp: {
+					server: convertToRemoteServer(outgoingBaseConfiguration),
+					credentials: oAuthCredentials
+				}
+			};
+			break;
+	}
+
+	return {
+		incoming,
+		outgoing
+	};
 };
 
 export default oAuthBasedConfiguratorStore;

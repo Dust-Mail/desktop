@@ -1,13 +1,20 @@
 import { create } from "zustand";
 
-import BaseConfiguration, { clean as cleanBase } from "./base";
+import BaseConfiguration, {
+	clean as cleanBase,
+	convertToRemoteServer
+} from "./base";
 
 import { MailConfig } from "@models/detect";
 import {
 	ConnectionSecurity,
+	Credentials,
+	IncomingEmailProtocol,
 	IncomingMailServerType,
 	IncomingServerType,
+	LoginConfiguration,
 	MailServerType,
+	OutgoingEmailProtocol,
 	OutgoingMailServerType,
 	OutgoingServerType,
 	mailServerTypeList
@@ -246,6 +253,84 @@ export const convertDetectedConfigToPasswordConfiguration = (
 	);
 
 	return map;
+};
+
+export const convertToLoginConfiguration = (configuration: {
+	incoming: PasswordBasedConfiguration & {
+		mailServerType: IncomingMailServerType;
+	};
+	outgoing: PasswordBasedConfiguration & {
+		mailServerType: OutgoingMailServerType;
+	};
+}): LoginConfiguration => {
+	let incoming: IncomingEmailProtocol;
+
+	const {
+		mailServerType: incomingMailServerType,
+		username: incomingUsername,
+		password: incomingPassword,
+		...incomingBaseConfiguration
+	} = configuration.incoming;
+
+	const incomingCredentials: Credentials = {
+		Password: { username: incomingUsername, password: incomingPassword }
+	};
+
+	switch (incomingMailServerType) {
+		case "Imap":
+			incoming = {
+				Imap: {
+					server: convertToRemoteServer(incomingBaseConfiguration),
+					credentials: incomingCredentials
+				}
+			};
+			break;
+		case "Pop":
+			incoming = {
+				Pop: {
+					server: convertToRemoteServer(incomingBaseConfiguration),
+					credentials: incomingCredentials
+				}
+			};
+			break;
+		case "Exchange":
+			incoming = {
+				Exchange: {
+					server: convertToRemoteServer(incomingBaseConfiguration),
+					credentials: incomingCredentials
+				}
+			};
+			break;
+	}
+
+	let outgoing: OutgoingEmailProtocol;
+
+	const {
+		mailServerType: outgoingMailServerType,
+		username: outgoingUsername,
+		password: outgoingPassword,
+		...outgoingBaseConfiguration
+	} = configuration.outgoing;
+
+	const outgoingCredentials: Credentials = {
+		Password: { username: outgoingUsername, password: outgoingPassword }
+	};
+
+	switch (outgoingMailServerType) {
+		case "Smtp":
+			outgoing = {
+				Smtp: {
+					server: convertToRemoteServer(outgoingBaseConfiguration),
+					credentials: outgoingCredentials
+				}
+			};
+			break;
+	}
+
+	return {
+		incoming,
+		outgoing
+	};
 };
 
 export default passwordBasedConfiguratorStore;

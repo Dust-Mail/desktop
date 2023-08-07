@@ -13,6 +13,10 @@ use serde::{ser::SerializeStruct, Serialize};
 
 use crate::debug;
 
+mod login;
+
+pub use login::LoginConfig;
+
 #[derive(Debug)]
 pub struct Error {
     message: String,

@@ -43,7 +43,7 @@ export const useCurrentUser = (): [
 	);
 
 	const [currentUser, setCurrentUser] = useMemo(() => {
-		const user = users?.find((user) => user.id == currentUserId);
+		const user = users?.find((user) => user.token == currentUserId);
 
 		return [user, setUser];
 	}, [currentUserId, users]);
@@ -70,7 +70,7 @@ export const useRemoveUser = (): ((id: string) => void) => {
 
 			setUsers(
 				[],
-				users.filter((user) => user.id != id)
+				users.filter((user) => user.token != id)
 			);
 		},
 		[users, setUsers]
@@ -85,7 +85,7 @@ export const useModifyUser = (): ((id: string, newUser: User) => void) => {
 
 		setUsers(
 			[newUser],
-			users.filter((user) => user.id != id)
+			users.filter((user) => user.token != id)
 		);
 	};
 };

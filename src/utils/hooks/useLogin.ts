@@ -1,15 +1,10 @@
 import useIsDesktop from "./useIsDesktop";
 import useMailClient from "./useMailClient";
-import useUser, { useCurrentUser, useModifyUser } from "./useUser";
+import { useCurrentUser, useModifyUser } from "./useUser";
 
 import { useNavigate } from "react-router-dom";
 
-import {
-	LoginConfiguration,
-	ServerLoginConfiguration,
-	ServerType,
-	Version
-} from "@src/models";
+import { LoginConfiguration, Version } from "@src/models";
 
 import { Result } from "@interfaces/result";
 
@@ -17,38 +12,17 @@ import compareVersions from "@utils/compareVersions";
 import useStore from "@utils/hooks/useStore";
 import {
 	createBaseError,
-	createErrorFromUnknown,
+	createResultFromUnknown,
 	parseError
 } from "@utils/parseError";
 
-// TODO: Fix this mess of a file.
-
-const findUsernameInLoginOptions = (
-	loginOptions: ServerLoginConfiguration
+const getDisplayNameFromLoginConfiguration = (
+	loginConfiguration: LoginConfiguration
 ): string => {
-	return (
-		loginOptions.loginType.oAuthBased?.username ??
-		loginOptions.loginType.passwordBased?.username ??
-		// Should never occur, but just in case it does happen there will be a fallback
-		"test@example.com"
-	);
+	return "";
 };
 
-const createIdentifier = (
-	incomingConfig: ServerLoginConfiguration,
-	outgoingConfig: ServerLoginConfiguration
-): string => {
-	const incomingUsername = findUsernameInLoginOptions(incomingConfig);
-	const outgoingUsername = findUsernameInLoginOptions(outgoingConfig);
-
-	const identifier = btoa(
-		`${incomingUsername}@${incomingConfig.domain}|${outgoingUsername}@${outgoingConfig.domain}`
-	);
-
-	return identifier;
-};
-
-export const useMailLogin = (): ((
+const useLogin = (): ((
 	config: LoginConfiguration
 ) => Promise<Result<void>>) => {
 	const appVersion = useStore((state) => state.appVersion);
@@ -56,11 +30,16 @@ export const useMailLogin = (): ((
 
 	const { isDesktop } = useIsDesktop();
 
-	const login = useLoginFromToken();
-
 	const mailClient = useMailClient();
 
+	const modifyUser = useModifyUser();
+	const [, setCurrentUser] = useCurrentUser();
+
+	const navigate = useNavigate();
+
 	return async (config) => {
+		console.log(config);
+
 		// Show the fetching animation
 		setFetching(true);
 
@@ -69,7 +48,7 @@ export const useMailLogin = (): ((
 
 			const versionResponseResult = await mailClient
 				.getVersion()
-				.catch((error) => createBaseError(createErrorFromUnknown(error)));
+				.catch(createResultFromUnknown);
 
 			if (!versionResponseResult.ok) {
 				return versionResponseResult;
@@ -98,70 +77,26 @@ export const useMailLogin = (): ((
 			// If there was anything wrong with the request, catch it
 			.catch(parseError);
 
-		if (!loginResult.ok) {
-			setFetching(false);
+		setFetching(false);
 
+		if (!loginResult.ok) {
 			return loginResult;
 		}
 
-		const incomingConfig = config.incoming;
-		// Outgoing config is incoming because there is no support for outgoing servers yet.
-		const outgoingConfig = config.incoming;
+		const token = loginResult.data;
 
-		if (incomingConfig === undefined || outgoingConfig === undefined)
-			return createBaseError({
-				kind: "ConfigNotComplete",
-				message: "Config is missing items"
-			});
+		const displayName = getDisplayNameFromLoginConfiguration(config);
 
-		const id = createIdentifier(incomingConfig, outgoingConfig);
+		console.log("Successfully authorized with mail servers");
 
-		login(loginResult.data, {
-			id,
-			usernames: {
-				incoming: findUsernameInLoginOptions(incomingConfig),
-				outgoing: findUsernameInLoginOptions(outgoingConfig)
-			},
-			redirectToDashboard: true,
-			setAsDefault: true
-		});
+		modifyUser(token, { token, displayName });
 
-		setFetching(false);
+		setCurrentUser(token);
+
+		navigate(`/dashboard`);
 
 		return { ok: true, data: undefined };
 	};
 };
 
-const useLoginFromToken = (): ((
-	token: string,
-	options?: {
-		id: string;
-		usernames: Record<ServerType, string>;
-		redirectToDashboard?: boolean;
-		setAsDefault?: boolean;
-	}
-) => void) => {
-	const modifyUser = useModifyUser();
-	const [, setCurrentUser] = useCurrentUser();
-
-	const user = useUser();
-
-	const navigate = useNavigate();
-
-	return (token, options) => {
-		const id = options?.id ?? user?.id;
-		const usernames = options?.usernames ?? user?.usernames;
-
-		if (id === undefined || usernames === undefined) return;
-
-		console.log("Successfully authorized with mail servers");
-
-		modifyUser(id, { token, id, usernames });
-
-		setCurrentUser(id);
-
-		if (options?.redirectToDashboard) navigate(`/dashboard`);
-	};
-};
-
-export default useLoginFromToken;
+export default useLogin;

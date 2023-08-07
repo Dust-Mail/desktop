@@ -6,7 +6,7 @@ import { useCallback } from "react";
 
 import useStore from "@utils/hooks/useStore";
 
-const useLogout = (): (() => void) => {
+const useLogout = (): (() => Promise<void>) => {
 	const removeUser = useRemoveUser();
 
 	const [users] = useUsers();
@@ -26,15 +26,15 @@ const useLogout = (): (() => void) => {
 
 		await mailClient.logout();
 
-		removeUser(currentUser?.id);
+		removeUser(currentUser?.token);
 
 		const newCurrentUser = users
-			.filter((user) => user.id != currentUser.id)
+			.filter((user) => user.token != currentUser.token)
 			?.shift();
 
-		setCurrentUser(newCurrentUser?.id);
+		setCurrentUser(newCurrentUser?.token);
 
-		if (newCurrentUser?.id) setSelectedBox();
+		if (newCurrentUser?.token) setSelectedBox();
 	}, [users, currentUser, setFetching]);
 
 	return logout;

@@ -25,6 +25,8 @@ fn main() {
     let menu = menu::create_menu();
     let tray = tray::create_tray();
 
+    env_logger::init();
+
     tauri::Builder::default()
         .menu(menu)
         .system_tray(tray)

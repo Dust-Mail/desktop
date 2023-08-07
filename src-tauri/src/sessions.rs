@@ -1,63 +1,55 @@
 use dashmap::DashMap;
+use dust_mail::{EmailClient, ThreadableEmailClient};
 use serde_json::from_str;
+use tauri::async_runtime::RwLock;
 
 use std::sync::Arc;
 
-use dust_mail::session::{MailSessions, ThreadSafeIncomingSession};
-
-use crate::{keyring, types::Result};
+use crate::{
+    keyring,
+    types::{LoginConfig, Result},
+};
 
 pub struct Sessions {
-    sessions_map: DashMap<String, Arc<MailSessions>>,
+    clients: DashMap<String, ThreadableEmailClient>,
 }
 
 impl Sessions {
     pub fn new() -> Self {
         Self {
-            sessions_map: DashMap::new(),
+            clients: DashMap::new(),
         }
     }
 
-    pub fn insert_session<S: Into<String>>(
-        &self,
-        identifier: S,
-        sessions: MailSessions,
-    ) -> Result<()> {
+    pub fn insert<S: Into<String>>(&self, identifier: S, client: EmailClient) {
         let identifier = identifier.into();
 
-        self.sessions_map.insert(identifier, Arc::new(sessions));
+        let client: ThreadableEmailClient = client.into();
 
-        Ok(())
+        self.clients.insert(identifier, client);
     }
 
-    pub async fn get_incoming_session<S: AsRef<str>>(
-        &self,
-        identifier: S,
-    ) -> Result<ThreadSafeIncomingSession> {
-        let identifier = identifier.as_ref();
-
-        let mail_sessions = self.get_session(identifier).await?;
-
-        Ok(mail_sessions.incoming().clone())
+    pub fn remove<S: AsRef<str>>(&self, identifier: S) {
+        self.clients.remove(identifier.as_ref());
     }
 
-    pub async fn get_session<S: Into<String>>(&self, identifier: S) -> Result<Arc<MailSessions>> {
+    pub async fn get<S: Into<String>>(&self, identifier: S) -> Result<Arc<RwLock<EmailClient>>> {
         let identifier: String = identifier.into();
 
-        match self.sessions_map.get(&identifier) {
-            Some(sessions) => Ok(sessions.clone()),
+        match self.clients.get(&identifier) {
+            Some(client) => Ok(Arc::clone(client.as_ref())),
             None => {
                 // If we don't have a session stored, we try to get it from the credentials stored in the keyring.
                 let credentials_json = keyring::get(&identifier)?;
 
-                let credentials = from_str(&credentials_json)?;
+                let login: LoginConfig = from_str(&credentials_json)?;
 
-                let mail_sessions = dust_mail::session::create_sessions(&credentials).await?;
+                let mail_client = login.create_client().await?;
 
-                self.insert_session(identifier.clone(), mail_sessions)?;
+                self.insert(&identifier, mail_client);
 
-                match self.sessions_map.get(&identifier) {
-                    Some(sessions) => Ok(sessions.clone()),
+                match self.clients.get(&identifier) {
+                    Some(client) => Ok(Arc::clone(client.as_ref())),
                     None => unreachable!(),
                 }
             }

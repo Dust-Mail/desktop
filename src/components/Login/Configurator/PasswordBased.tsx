@@ -1,5 +1,6 @@
-import { ConfigurationMap } from "./usePasswordBasedConfiguratorStore";
-import passwordBasedConfiguratorStore from "./usePasswordBasedConfiguratorStore";
+import passwordBasedConfiguratorStore, {
+	convertToLoginConfiguration
+} from "./usePasswordBasedConfiguratorStore";
 
 import {
 	FC,
@@ -35,8 +36,6 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 import {
 	IncomingMailServerType,
-	LoginConfiguration,
-	LoginType,
 	MailServerType,
 	OutgoingMailServerType,
 	ServerType,
@@ -47,7 +46,7 @@ import {
 import modalStyles from "@styles/modal";
 import scrollbarStyles from "@styles/scrollbar";
 
-import { useMailLogin } from "@utils/hooks/useLogin";
+import useLogin from "@utils/hooks/useLogin";
 import useStore from "@utils/hooks/useStore";
 import useTheme from "@utils/hooks/useTheme";
 import { errorToString } from "@utils/parseError";
@@ -236,7 +235,7 @@ const PasswordBasedConfigurator: FC = () => {
 		[theme]
 	);
 
-	const login = useMailLogin();
+	const login = useLogin();
 
 	const menuOpen = passwordBasedConfiguratorStore((state) => state.menuOpen);
 	const setMenuOpen = passwordBasedConfiguratorStore(
@@ -268,44 +267,6 @@ const PasswordBasedConfigurator: FC = () => {
 
 	const missingFields = false;
 
-	/**
-	 * A function for converting from our selected mail server config to the credentials type that we use to login.
-	 */
-	const createLoginConfiguration = (
-		configurations: ConfigurationMap,
-		selectedConfigurations: {
-			incoming: IncomingMailServerType;
-			outgoing: OutgoingMailServerType;
-		}
-	): LoginConfiguration => {
-		const incoming = configurations[selectedConfigurations.incoming];
-
-		const {
-			username: incomingUsername,
-			password: incomingPassword,
-			host: domain,
-			...incomingConfiguration
-		} = incoming;
-
-		const incomingLoginType: LoginType = {
-			passwordBased: {
-				username: incomingUsername,
-				password: incomingPassword
-			}
-		};
-
-		const options: LoginConfiguration = {
-			incoming: {
-				...incomingConfiguration,
-				domain,
-				loginType: incomingLoginType
-			},
-			incomingType: selectedConfigurations.incoming
-		};
-
-		return options;
-	};
-
 	const onSubmit: FormEventHandler = async (e): Promise<void> => {
 		e?.preventDefault();
 
@@ -315,9 +276,19 @@ const PasswordBasedConfigurator: FC = () => {
 			return;
 		}
 
-		const loginConfiguration = createLoginConfiguration(
-			configurations,
-			selectedMailServerTypes
+		const selectedConfigurations = {
+			incoming: {
+				...configurations[selectedMailServerTypes.incoming],
+				mailServerType: selectedMailServerTypes.incoming
+			},
+			outgoing: {
+				...configurations[selectedMailServerTypes.outgoing],
+				mailServerType: selectedMailServerTypes.outgoing
+			}
+		};
+
+		const loginConfiguration = convertToLoginConfiguration(
+			selectedConfigurations
 		);
 
 		const loginResult = await login(loginConfiguration);

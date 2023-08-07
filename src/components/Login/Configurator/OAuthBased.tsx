@@ -1,5 +1,5 @@
 import oAuthBasedConfiguratorStore, {
-	ConfigurationMap
+	convertToLoginConfiguration
 } from "./useOAuthBasedConfiguratorStore";
 
 import { FC, FormEventHandler, useMemo, useState } from "react";
@@ -11,12 +11,10 @@ import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 
-import { LoginConfiguration } from "@models/login";
-
 import modalStyles from "@styles/modal";
 import scrollbarStyles from "@styles/scrollbar";
 
-import { useMailLogin } from "@utils/hooks/useLogin";
+import useLogin from "@utils/hooks/useLogin";
 import useOAuth2Client from "@utils/hooks/useOAuth2Client";
 import useTheme from "@utils/hooks/useTheme";
 import { errorToString } from "@utils/parseError";
@@ -33,6 +31,7 @@ const OAuthBasedConfigurator: FC = () => {
 	const setMenuOpen = oAuthBasedConfiguratorStore((state) => state.setMenuOpen);
 
 	const provider = oAuthBasedConfiguratorStore((state) => state.provider);
+	const username = oAuthBasedConfiguratorStore((state) => state.username);
 	const displayName = oAuthBasedConfiguratorStore((state) => state.displayName);
 	const oAuthConfig = oAuthBasedConfiguratorStore((state) => state.oAuthConfig);
 	const configurations = oAuthBasedConfiguratorStore(
@@ -43,28 +42,7 @@ const OAuthBasedConfigurator: FC = () => {
 
 	const oAuthClient = useOAuth2Client();
 
-	const login = useMailLogin();
-
-	const createLoginConfiguration = (
-		configurations: ConfigurationMap,
-		accessToken: string
-	): LoginConfiguration => {
-		const {
-			username,
-			mailServerType: incomingMailServerType,
-			host: domain,
-			...incomingLoginConfiguration
-		} = configurations.incoming;
-
-		return {
-			incoming: {
-				...incomingLoginConfiguration,
-				domain,
-				loginType: { oAuthBased: { accessToken, username } }
-			},
-			incomingType: incomingMailServerType
-		};
-	};
+	const login = useLogin();
 
 	const onSubmit: FormEventHandler = async (e) => {
 		e.preventDefault();
@@ -90,8 +68,9 @@ const OAuthBasedConfigurator: FC = () => {
 
 		const oAuthSession = oAuthSessionResult.data;
 
-		const loginConfiguration = createLoginConfiguration(
+		const loginConfiguration = convertToLoginConfiguration(
 			configurations,
+			username,
 			oAuthSession.access_token
 		);
 

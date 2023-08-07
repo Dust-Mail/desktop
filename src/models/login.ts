@@ -4,8 +4,18 @@ export const ConnectionSecurityModel = z.enum(["Tls", "StartTls", "Plain"]);
 
 export type ConnectionSecurity = z.infer<typeof ConnectionSecurityModel>;
 
-export const incomingMailServerTypeList = ["Imap", "Pop", "Exchange"] as const;
-export const outgoingMailServerTypeList = ["Smtp"] as const;
+export const imapMailServer = "Imap";
+export const popMailServer = "Pop";
+export const exchangeMailServer = "Exchange";
+
+export const incomingMailServerTypeList = [
+	imapMailServer,
+	popMailServer,
+	exchangeMailServer
+] as const;
+
+export const smtpMailServer = "Smtp";
+export const outgoingMailServerTypeList = [smtpMailServer] as const;
 export const mailServerTypeList = [
 	...incomingMailServerTypeList,
 	...outgoingMailServerTypeList
@@ -33,6 +43,8 @@ export const serverTypeList = [
 	incomingServerTypeString,
 	outgoingServerTypeString
 ] as const;
+export const ServerTypeModel = z.enum(serverTypeList);
+export type ServerType = z.infer<typeof ServerTypeModel>;
 
 export const IncomingServerTypeModel = z.literal(incomingServerTypeString);
 export type IncomingServerType = z.infer<typeof IncomingServerTypeModel>;
@@ -40,51 +52,70 @@ export type IncomingServerType = z.infer<typeof IncomingServerTypeModel>;
 export const OutgoingServerTypeModel = z.literal(outgoingServerTypeString);
 export type OutgoingServerType = z.infer<typeof OutgoingServerTypeModel>;
 
-export const ServerTypeModel = z.union([
-	IncomingServerTypeModel,
-	OutgoingServerTypeModel
-]);
-export type ServerType = z.infer<typeof ServerTypeModel>;
+export const RemoteServerModel = z.object({
+	server: z.string(),
+	port: z.number(),
+	security: ConnectionSecurityModel
+});
+export type RemoteServer = z.infer<typeof RemoteServerModel>;
 
-export const PasswordBasedLoginLiteral = "passwordBased" as const;
-export const PasswordBasedLoginLiteralModel = z.literal(
-	PasswordBasedLoginLiteral
-);
-
-export const OAuthBasedLoginLiteral = "oAuthBased" as const;
-export const OAuthBasedLoginLiteralModel = z.literal(OAuthBasedLoginLiteral);
+export const password = "Password" as const;
+export const oauth = "OAuth" as const;
 
 export const PasswordCredentialsModel = z.object({
 	username: z.string(),
 	password: z.string()
 });
-export type PasswordCredentials = z.infer<typeof PasswordCredentialsModel>;
 
 export const OAuthCredentialsModel = z.object({
 	username: z.string(),
-	accessToken: z.string()
-});
-export type OAuthCredentials = z.infer<typeof OAuthCredentialsModel>;
-
-export const LoginTypeModel = z.object({
-	[PasswordBasedLoginLiteral]: PasswordCredentialsModel.optional(),
-	[OAuthBasedLoginLiteral]: OAuthCredentialsModel.optional()
+	token: z.string()
 });
 
-export type LoginType = z.infer<typeof LoginTypeModel>;
+export const CredentialsModel = z.union([
+	z.object({ [password]: PasswordCredentialsModel }),
+	z.object({ [oauth]: OAuthCredentialsModel })
+]);
+export type Credentials = z.infer<typeof CredentialsModel>;
 
-export const ServerLoginConfigurationModel = z.object({
-	loginType: LoginTypeModel,
-	domain: z.string(),
-	port: z.number(),
-	security: ConnectionSecurityModel
+export const ImapProtocolModel = z.object({
+	server: RemoteServerModel,
+	credentials: CredentialsModel
 });
-export type ServerLoginConfiguration = z.infer<
-	typeof ServerLoginConfigurationModel
->;
+export type ImapProtocol = z.infer<typeof ImapProtocolModel>;
+
+export const PopProtocolModel = z.object({
+	server: RemoteServerModel,
+	credentials: CredentialsModel
+});
+export type PopProtocol = z.infer<typeof PopProtocolModel>;
+
+export const SmtpProtocolModel = z.object({
+	server: RemoteServerModel,
+	credentials: CredentialsModel
+});
+export type SmtpProtocol = z.infer<typeof SmtpProtocolModel>;
+
+export const ExchangeProtocolModel = z.object({
+	server: RemoteServerModel,
+	credentials: CredentialsModel
+});
+export type ExchangeProtocol = z.infer<typeof ExchangeProtocolModel>;
+
+export const IncomingEmailProtocolModel = z.union([
+	z.object({ [imapMailServer]: ImapProtocolModel }),
+	z.object({ [popMailServer]: PopProtocolModel }),
+	z.object({ [exchangeMailServer]: ExchangeProtocolModel })
+]);
+export type IncomingEmailProtocol = z.infer<typeof IncomingEmailProtocolModel>;
+
+export const OutgoingEmailProtocolModel = z.object({
+	[smtpMailServer]: SmtpProtocolModel
+});
+export type OutgoingEmailProtocol = z.infer<typeof OutgoingEmailProtocolModel>;
 
 export const LoginConfigurationModel = z.object({
-	incoming: ServerLoginConfigurationModel,
-	incomingType: IncomingMailServerTypeModel
+	incoming: IncomingEmailProtocolModel,
+	outgoing: OutgoingEmailProtocolModel
 });
 export type LoginConfiguration = z.infer<typeof LoginConfigurationModel>;

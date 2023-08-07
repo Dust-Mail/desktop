@@ -17,7 +17,7 @@ tauri-build = { version = "1.3", features = ["isolation"] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.3", features = ["devtools", "isolation", "shell-open", "system-tray", "window-close", "window-create"] }
-dust-mail = { git = "https://github.com/Dust-Mail/core", version = "0.1" }
+dust-mail = { git = "https://github.com/Dust-Mail/core", version = "0.2" }
 base64 = "0.21"
 directories = "4.0"
 futures = "0.3"
@@ -26,6 +26,8 @@ keyring = "2.0.2"
 data-encoding = "2.3.3"
 ring = "0.16.20"
 whoami = "1.4.0"
+env_logger = "0.10.0"
+log = "0.4.19"
 
 [features]
 # by default Tauri runs in production mode

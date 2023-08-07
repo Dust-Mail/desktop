@@ -106,7 +106,7 @@ const ConfigurationDetector: FC<{
 			const displayName = config.displayName;
 
 			const oAuthBasedConfigurations =
-				convertDetectedConfigToOAuthConfiguration(username, config);
+				convertDetectedConfigToOAuthConfiguration(config);
 
 			if (oAuthBasedConfigurations === null) {
 				setError("Failed to parse detected config into fields");
@@ -116,6 +116,7 @@ const ConfigurationDetector: FC<{
 			showOAuthBasedConfigurator({
 				provider,
 				displayName,
+				username,
 				oAuthConfig,
 				configuration: oAuthBasedConfigurations
 			});
